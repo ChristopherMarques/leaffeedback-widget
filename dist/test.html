@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Embedding React Widget</title>
+</head>
+<body>
+  <!-- Aqui você define onde o widget será inserido -->
+  <div id="feedback-widget"></div>
+
+  <!-- Incluir o bundle UMD gerado -->
+  <script src="feedback-widget-umd.js"></script>
+  <script>
+    // Inicializar o widget passando o ID do elemento onde ele será montado e as props
+    initializeFeedbackWidget('feedback-widget', {
+      position: 'bottom-right',
+      primaryColor: '#FF5733',
+      companyName: 'Minha Empresa'
+    });
+  </script>
+</body>
+</html>

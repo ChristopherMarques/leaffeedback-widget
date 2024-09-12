@@ -27,13 +27,13 @@ export default function Dashboard() {
 
   const generateEmbedCode = () => {
     const code = `<script src="http://localhost:3000/embed.js"></script>
-<script>
-  FeedbackWidget.init({
-    position: "${config.position}",
-    primaryColor: "${config.primaryColor}",
-    companyName: "${config.companyName}"
-  });
-</script>`;
+          <script>
+            FeedbackWidget.init({
+              position: "${config.position}",
+              primaryColor: "${config.primaryColor}",
+              companyName: "${config.companyName}"
+            });
+          </script>`;
 
     navigator.clipboard
       .writeText(code)
