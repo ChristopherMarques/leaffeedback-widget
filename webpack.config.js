@@ -8,7 +8,7 @@ export default {
   mode: "production",
   entry: "./components/EmbedableFeedback/index.tsx",
   output: {
-    path: path.resolve(__dirname, "dist"),
+    path: path.resolve(__dirname, "public/dist"),
     filename: "feedback-widget-umd.js",
     library: "FeedbackWidget",
     libraryTarget: "umd",

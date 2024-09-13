@@ -1,46 +1,58 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import EmbeddableFeedback from "@/components/EmbedableFeedback";
+import dynamic from "next/dynamic";
+
+const DynamicEmbeddableFeedback = dynamic(
+  () => import("@/components/EmbedableFeedback"),
+  { ssr: false }
+);
+
+type Position = "top-left" | "top-right" | "bottom-left" | "bottom-right";
+
+interface Config {
+  position: Position;
+  primaryColor: string;
+  companyName: string;
+}
 
 export default function Dashboard() {
-  const [config, setConfig] = useState({
-    position: "bottom-right" as
-      | "top-left"
-      | "top-right"
-      | "bottom-left"
-      | "bottom-right",
+  const [config, setConfig] = useState<Config>({
+    position: "bottom-right",
     primaryColor: "#3b82f6",
     companyName: "My Company",
   });
 
-  const handleConfigChange = (key: string, value: string) => {
+  const { toast } = useToast();
+
+  const handleConfigChange = (key: keyof Config, value: string) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
   };
 
-  const { toast } = useToast();
-
   const generateEmbedCode = () => {
-    const code = `<script src="http://localhost:3000/embed.js"></script>
-          <script>
-            FeedbackWidget.init({
-              position: "${config.position}",
-              primaryColor: "${config.primaryColor}",
-              companyName: "${config.companyName}"
-            });
-          </script>`;
+    const embedCode = `
+<!-- Begin Feedback Widget -->
+<div id="feedback-widget"></div>
+<script src="${process.env.NEXT_PUBLIC_FEEDBACK_WIDGET_URL}"></script>
+<script>
+  initializeFeedbackWidget('feedback-widget', ${JSON.stringify(
+    config,
+    null,
+    2
+  )});
+</script>
+<!-- End Feedback Widget -->`.trim();
 
     navigator.clipboard
-      .writeText(code)
+      .writeText(embedCode)
       .then(() => {
         toast({
           title: "Embed code copied to clipboard",
-          variant: "default",
           description:
             "Paste this code into your website to add the feedback widget.",
         });
@@ -60,59 +72,103 @@ export default function Dashboard() {
       <h1 className="text-3xl font-bold mb-6">Feedback App Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-6">
-          <div>
-            <Label htmlFor="companyName">Company Name</Label>
-            <Input
-              id="companyName"
-              value={config.companyName}
-              onChange={(e) =>
-                handleConfigChange("companyName", e.target.value)
-              }
-            />
-          </div>
-          <div>
-            <Label htmlFor="primaryColor">Primary Color</Label>
-            <Input
-              id="primaryColor"
-              type="color"
-              value={config.primaryColor}
-              onChange={(e) =>
-                handleConfigChange("primaryColor", e.target.value)
-              }
-            />
-          </div>
-          <div>
-            <Label>Position</Label>
-            <RadioGroup
-              value={config.position}
-              onValueChange={(value) => handleConfigChange("position", value)}
-              className="grid grid-cols-2 gap-2"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="top-left" id="top-left" />
-                <Label htmlFor="top-left">Top Left</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="top-right" id="top-right" />
-                <Label htmlFor="top-right">Top Right</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="bottom-left" id="bottom-left" />
-                <Label htmlFor="bottom-left">Bottom Left</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="bottom-right" id="bottom-right" />
-                <Label htmlFor="bottom-right">Bottom Right</Label>
-              </div>
-            </RadioGroup>
-          </div>
+          <ConfigInput
+            label="Company Name"
+            value={config.companyName}
+            onChange={(value) => handleConfigChange("companyName", value)}
+          />
+          <ConfigInput
+            label="Primary Color"
+            type="color"
+            value={config.primaryColor}
+            onChange={(value) => handleConfigChange("primaryColor", value)}
+          />
+          <PositionRadioGroup
+            value={config.position}
+            onChange={(value: Position) =>
+              handleConfigChange("position", value)
+            }
+          />
           <Button onClick={generateEmbedCode}>Generate Embed Code</Button>
         </div>
-        <div className="bg-gray-100 p-6 rounded-lg relative h-96">
-          <h2 className="text-xl font-semibold mb-4">Preview</h2>
-          <EmbeddableFeedback {...config} />
-        </div>
+        <PreviewSection config={config} />
       </div>
     </div>
   );
 }
+
+const ConfigInput = ({
+  label,
+  value,
+  onChange,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: string;
+}) => (
+  <div>
+    <Label htmlFor={label.toLowerCase().replace(" ", "-")}>{label}</Label>
+    <Input
+      id={label.toLowerCase().replace(" ", "-")}
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+    />
+  </div>
+);
+
+const PositionRadioGroup = ({
+  value,
+  onChange,
+}: {
+  value: Position;
+  onChange: (value: Position) => void;
+}) => (
+  <div>
+    <Label>Position</Label>
+    <RadioGroup
+      value={value}
+      onValueChange={onChange}
+      className="grid grid-cols-2 gap-2"
+    >
+      {["top-left", "top-right", "bottom-left", "bottom-right"].map((pos) => (
+        <div key={pos} className="flex items-center space-x-2">
+          <RadioGroupItem value={pos} id={pos} />
+          <Label htmlFor={pos}>
+            {pos.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+          </Label>
+        </div>
+      ))}
+    </RadioGroup>
+  </div>
+);
+
+const PreviewSection = ({ config }: { config: Config }) => {
+  const embedCode = `
+<!-- Begin Feedback Widget -->
+<div id="feedback-widget"></div>
+<script src="http://localhost:3000/dist/feedback-widget-umd.js"></script>
+<script>
+  initializeFeedbackWidget('feedback-widget', ${JSON.stringify(
+    config,
+    null,
+    2
+  )});
+</script>
+<!-- End Feedback Widget -->`.trim();
+
+  return (
+    <div className="bg-gray-100 p-6 rounded-lg relative h-96">
+      <h2 className="text-xl font-semibold mb-4">Preview</h2>
+      <code
+        className="text-sm block bg-gray-200 p-4 rounded-md overflow-x-auto whitespace-pre font-mono text-left select-none pointer-events-none"
+        unselectable="on"
+      >
+        {embedCode}
+      </code>
+      <DynamicEmbeddableFeedback {...config} />
+    </div>
+  );
+};

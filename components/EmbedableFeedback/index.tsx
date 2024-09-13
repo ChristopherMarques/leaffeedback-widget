@@ -14,13 +14,18 @@ interface FeedbackProps {
   companyName: string;
 }
 
-(window as any).initializeFeedbackWidget = (elementId: string, props: any) => {
-  const rootElement = document.getElementById(elementId);
-  if (rootElement) {
-    const root = createRoot(rootElement);
-    root.render(<EmbeddableFeedback {...props} />);
-  }
-};
+if (typeof window !== "undefined") {
+  (window as any).initializeFeedbackWidget = (
+    elementId: string,
+    props: any
+  ) => {
+    const rootElement = document.getElementById(elementId);
+    if (rootElement) {
+      const root = createRoot(rootElement);
+      root.render(<EmbeddableFeedback {...props} />);
+    }
+  };
+}
 
 export default function EmbeddableFeedback({
   position,
