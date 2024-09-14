@@ -5,8 +5,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageSquare, BarChart, FileText, Settings } from "lucide-react";
 import ConfigTab from "@/components/ConfigTab";
 import Dashboard from "@/components/Dashboard/Dashboard";
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage(): JSX.Element {
+  const { isLoaded, userId } = useAuth();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (isLoaded && !userId) {
+      router.push("/");
+    }
+  }, [isLoaded, userId, router]);
+
+  if (!isLoaded || !userId) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Feedback Dashboard</h1>

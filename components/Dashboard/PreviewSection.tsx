@@ -20,7 +20,7 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({ config }) => {
     <div className="bg-gray-100 p-6 rounded-lg relative h-96">
       <h2 className="text-xl font-semibold mb-4">Preview</h2>
       <code
-        className="text-sm block bg-gray-200 p-4 rounded-md overflow-x-auto whitespace-pre font-mono text-left select-none pointer-events-none"
+        className="text-sm block bg-gray-200 p-4 rounded-md overflow-x-auto whitespace-pre font-mono text-left select-none"
         unselectable="on"
       >
         {embedCode}

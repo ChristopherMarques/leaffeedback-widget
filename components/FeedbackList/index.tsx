@@ -15,12 +15,16 @@ export default function FeedbackList({
         <ul className="space-y-2">
           {feedbacks.map((feedback) => (
             <li
-              key={feedback.id}
+              key={feedback._id}
               className="p-2 hover:bg-gray-100 rounded cursor-pointer"
               onClick={() => onSelectFeedback(feedback)}
             >
-              <p className="font-medium">{feedback.message}</p>
-              <p className="text-sm text-gray-500">{feedback.date}</p>
+              <p className="font-medium">
+                {feedback.content.substring(0, 50)}...
+              </p>
+              <p className="text-sm text-gray-500">
+                {new Date(feedback.createdAt).toLocaleString()}
+              </p>
             </li>
           ))}
         </ul>

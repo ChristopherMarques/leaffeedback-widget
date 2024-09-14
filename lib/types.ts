@@ -1,10 +1,12 @@
 // types.ts
 
 export interface Feedback {
-  id: number;
-  message: string;
-  sentiment: "positive" | "neutral" | "negative";
-  date: string;
+  _id: string;
+  content: string;
+  email?: string;
+  userId: string;
+  projectId: string;
+  createdAt: string;
 }
 
 export interface FeedbackListProps {
@@ -26,8 +28,20 @@ export type Position =
   | "bottom-left"
   | "bottom-right";
 
-export interface Config {
+export interface Config extends WidgetConfig {
+  projectId: string;
+}
+
+export interface WidgetConfig {
   position: Position;
   primaryColor: string;
+  secondaryColor: string;
   companyName: string;
+}
+
+export interface Project {
+  _id: string;
+  name: string;
+  userId: string;
+  createdAt: string;
 }

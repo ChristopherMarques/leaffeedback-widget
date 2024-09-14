@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TabsContent } from "@/components/ui/tabs";
-import { mockFeedbacks } from "@/lib/mockData";
 import { Feedback } from "@/lib/types";
 import FeedbackList from "../FeedbackList";
 import FeedbackDetails from "../FeedbackDetails";
@@ -14,13 +13,32 @@ export default function Dashboard(): JSX.Element {
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(
     null
   );
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+
+  useEffect(() => {
+    fetchFeedbacks();
+  }, []);
+
+  const fetchFeedbacks = async () => {
+    try {
+      const response = await fetch("/api/feedback");
+      if (response.ok) {
+        const data = await response.json();
+        setFeedbacks(data);
+      } else {
+        console.error("Failed to fetch feedbacks");
+      }
+    } catch (error) {
+      console.error("Error fetching feedbacks:", error);
+    }
+  };
 
   return (
     <>
       <TabsContent value="feedbacks">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FeedbackList
-            feedbacks={mockFeedbacks}
+            feedbacks={feedbacks}
             onSelectFeedback={setSelectedFeedback}
           />
           <FeedbackDetails feedback={selectedFeedback} />
@@ -29,7 +47,7 @@ export default function Dashboard(): JSX.Element {
       <TabsContent value="analytics">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <AIAnalytics />
-          <FeedbackOverview feedbacks={mockFeedbacks} />
+          <FeedbackOverview feedbacks={feedbacks} />
         </div>
       </TabsContent>
       <TabsContent value="reports">

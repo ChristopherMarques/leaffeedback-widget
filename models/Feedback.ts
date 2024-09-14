@@ -12,8 +12,12 @@ const FeedbackSchema = new mongoose.Schema({
     match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
   },
   userId: {
+    type: String,
+    required: true,
+  },
+  projectId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Project",
     required: true,
   },
   createdAt: {

@@ -7,11 +7,14 @@ import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 import { createRoot } from "react-dom/client";
 import "../../app/globals.css";
+import { useToast } from "@/hooks/use-toast";
 
 interface FeedbackProps {
   position: "top-left" | "top-right" | "bottom-left" | "bottom-right";
   primaryColor: string;
+  secondaryColor: string;
   companyName: string;
+  projectId: string;
 }
 
 if (typeof window !== "undefined") {
@@ -30,11 +33,14 @@ if (typeof window !== "undefined") {
 export default function EmbeddableFeedback({
   position,
   primaryColor,
+  secondaryColor,
   companyName,
+  projectId,
 }: FeedbackProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [email, setEmail] = useState("");
+  const { toast } = useToast();
 
   const positionClasses = {
     "top-left": "top-4 left-4",
@@ -45,11 +51,29 @@ export default function EmbeddableFeedback({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement feedback submission to your API
-    console.log("Feedback submitted:", { feedback, email });
-    setIsOpen(false);
-    setFeedback("");
-    setEmail("");
+    try {
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: feedback, email, projectId }),
+      });
+      if (response.ok) {
+        toast({
+          variant: "default",
+          title: "Feedback submitted",
+          description: "Thank you for your feedback!",
+        });
+        setIsOpen(false);
+        setFeedback("");
+        setEmail("");
+      } else {
+        console.error("Failed to submit feedback");
+      }
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+    }
   };
 
   return (
@@ -58,7 +82,7 @@ export default function EmbeddableFeedback({
         {!isOpen && (
           <Button
             onClick={() => setIsOpen(true)}
-            style={{ backgroundColor: primaryColor }}
+            style={{ backgroundColor: primaryColor, color: secondaryColor }}
           >
             Feedback
           </Button>
@@ -94,7 +118,7 @@ export default function EmbeddableFeedback({
               />
               <Button
                 type="submit"
-                style={{ backgroundColor: primaryColor }}
+                style={{ backgroundColor: primaryColor, color: secondaryColor }}
                 className="w-full"
               >
                 Send Feedback
