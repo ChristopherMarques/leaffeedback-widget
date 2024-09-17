@@ -45,3 +45,11 @@ export interface Project {
   userId: string;
   createdAt: string;
 }
+
+export interface Subscription {
+  subscriptionId: string;
+  subscriptionStatus: string;
+  subscriptionPlan: string;
+  subscriptionPlanName: string;
+  subscriptionExpirationDate: string;
+}
