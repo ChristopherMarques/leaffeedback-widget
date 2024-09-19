@@ -107,7 +107,8 @@ export default function EmbeddableFeedback({
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 required
-                className="w-full"
+                className="w-full resize-none overflow-y-auto"
+                style={{ height: "100px" }}
               />
               <Input
                 type="email"
