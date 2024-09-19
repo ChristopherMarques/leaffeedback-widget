@@ -34,25 +34,19 @@ export default function Dashboard(): JSX.Element {
   };
 
   return (
-    <>
-      <TabsContent value="feedbacks">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FeedbackList
-            feedbacks={feedbacks}
-            onSelectFeedback={setSelectedFeedback}
-          />
-          <FeedbackDetails feedback={selectedFeedback} />
-        </div>
-      </TabsContent>
-      <TabsContent value="analytics">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <AIAnalytics />
+    <TabsContent value="dashboard">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FeedbackList
+          feedbacks={feedbacks}
+          onSelectFeedback={setSelectedFeedback}
+        />
+        <FeedbackDetails feedback={selectedFeedback} />
+        <AIAnalytics />
+        <div className="space-y-6">
           <FeedbackOverview feedbacks={feedbacks} />
+          <ReportGenerator />
         </div>
-      </TabsContent>
-      <TabsContent value="reports">
-        <ReportGenerator />
-      </TabsContent>
-    </>
+      </div>
+    </TabsContent>
   );
 }

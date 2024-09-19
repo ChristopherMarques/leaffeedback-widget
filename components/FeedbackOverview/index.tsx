@@ -17,28 +17,28 @@ export default function FeedbackOverview({
         <CardTitle>Feedback Overview</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <span>Total Feedbacks</span>
-            <span className="font-bold">{totalFeedbacks}</span>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center">
+            <p className="text-2xl font-bold">{totalFeedbacks}</p>
+            <p className="text-sm text-gray-500">Total Feedbacks</p>
           </div>
-          <div className="flex justify-between items-center">
-            <span>Positive Feedbacks</span>
-            <span className="font-bold text-green-500">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-green-500">
               {((positiveFeedbacks / totalFeedbacks) * 100).toFixed(0)}%
-            </span>
+            </p>
+            <p className="text-sm text-gray-500">Positive</p>
           </div>
-          <div className="flex justify-between items-center">
-            <span>Negative Feedbacks</span>
-            <span className="font-bold text-red-500">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-red-500">
               {((negativeFeedbacks / totalFeedbacks) * 100).toFixed(0)}%
-            </span>
+            </p>
+            <p className="text-sm text-gray-500">Negative</p>
           </div>
-          <div className="flex justify-between items-center">
-            <span>Neutral Feedbacks</span>
-            <span className="font-bold text-yellow-500">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-yellow-500">
               {((neutralFeedbacks / totalFeedbacks) * 100).toFixed(0)}%
-            </span>
+            </p>
+            <p className="text-sm text-gray-500">Neutral</p>
           </div>
         </div>
       </CardContent>

@@ -21,7 +21,7 @@ import {
 export default function ConfigTab(): JSX.Element {
   const [widgetConfig, setWidgetConfig] = useState<WidgetConfig>({
     position: "bottom-right",
-    primaryColor: "#3b82f6",
+    primaryColor: "#686B59",
     secondaryColor: "#ffffff",
     companyName: "My Company",
   });

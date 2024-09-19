@@ -1,6 +1,5 @@
-import React from "react";
-import { SignIn } from "@clerk/nextjs";
+import { CustomSignIn } from "@/components/CustomSignIn";
 
 export default function Page() {
-  return <SignIn />;
+  return <CustomSignIn />;
 }

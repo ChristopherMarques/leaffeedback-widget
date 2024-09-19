@@ -19,18 +19,18 @@ export default function ReportGenerator(): JSX.Element {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex gap-4 items-center">
-          <Button className="w-full sm:w-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <Button className="w-full">
             <FileText className="mr-2 h-4 w-4" />
-            Generate Monthly Report
+            Monthly Report
           </Button>
-          <Button className="w-full sm:w-auto">
+          <Button className="w-full">
             <FileText className="mr-2 h-4 w-4" />
-            Generate Quarterly Report
+            Quarterly Report
           </Button>
-          <Button className="w-full sm:w-auto">
+          <Button className="w-full sm:col-span-2">
             <FileText className="mr-2 h-4 w-4" />
-            Generate Custom Report
+            Custom Report
           </Button>
         </div>
       </CardContent>
