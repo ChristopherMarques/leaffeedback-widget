@@ -11,6 +11,7 @@ import ReportGenerator from "../ReportGenerator";
 import { hasAccess } from "@/lib/subscriptionUtils";
 import ProFeatureOverlay from "../ProFeatureOverlay";
 import { useAuth } from "@clerk/nextjs";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Dashboard(): JSX.Element {
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(
@@ -72,27 +73,47 @@ export default function Dashboard(): JSX.Element {
     }
   };
 
+  const renderSkeletons = () => (
+    <>
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-3/4" />
+        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-32 w-full" />
+      </div>
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-3/4" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    </>
+  );
+
   return (
     <TabsContent value="dashboard">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FeedbackList
-          feedbacks={feedbacks}
-          onSelectFeedback={setSelectedFeedback}
-          loading={loading}
-        />
-        <FeedbackDetails feedback={selectedFeedback} />
-
-        <ProFeatureOverlay hasPro={proFeatures.aiAnalytics}>
-          <AIAnalytics />
-        </ProFeatureOverlay>
-
-        <div className="space-y-6">
-          <FeedbackOverview feedbacks={feedbacks} loading={loading} />
-          <ProFeatureOverlay hasPro={proFeatures.reportGenerator}>
-            <ReportGenerator />
-          </ProFeatureOverlay>
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {renderSkeletons()}
         </div>
-      </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FeedbackList
+            feedbacks={feedbacks}
+            onSelectFeedback={setSelectedFeedback}
+            loading={loading}
+          />
+          <FeedbackDetails feedback={selectedFeedback} />
+
+          <ProFeatureOverlay hasPro={proFeatures.aiAnalytics}>
+            <AIAnalytics />
+          </ProFeatureOverlay>
+
+          <div className="space-y-6">
+            <FeedbackOverview feedbacks={feedbacks} loading={loading} />
+            <ProFeatureOverlay hasPro={proFeatures.reportGenerator}>
+              <ReportGenerator />
+            </ProFeatureOverlay>
+          </div>
+        </div>
+      )}
     </TabsContent>
   );
 }
