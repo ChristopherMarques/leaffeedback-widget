@@ -92,7 +92,7 @@ const SubscriptionManager: React.FC = () => {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        {subscription ? (
+        {subscription && subscription.subscriptionStatus === "active" ? (
           <Alert>
             <AlertTitle>Current Subscription</AlertTitle>
             <AlertDescription>
@@ -101,9 +101,11 @@ const SubscriptionManager: React.FC = () => {
               Status: {subscription.subscriptionStatus}
               <br />
               Expiration Date:{" "}
-              {new Date(
-                subscription.subscriptionExpirationDate
-              ).toLocaleDateString() || "-"}
+              {subscription.subscriptionExpirationDate
+                ? new Date(
+                    subscription.subscriptionExpirationDate
+                  ).toLocaleDateString()
+                : "N/A"}
             </AlertDescription>
           </Alert>
         ) : (
