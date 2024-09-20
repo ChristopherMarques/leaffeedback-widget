@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
+import { User as UserType } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
   const { userId } = auth();
@@ -12,59 +13,51 @@ export async function GET(request: NextRequest) {
   await dbConnect();
 
   try {
-    let user = await User.findOne({ clerkId: userId });
-
+    const user: UserType | null = await User.findOne({ clerkId: userId });
     if (!user) {
-      // If the user doesn't exist, create a new one
-      user = await User.create({ clerkId: userId });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-
     return NextResponse.json(user);
   } catch (error) {
-    console.error("Error fetching or creating user:", error);
+    console.error("Error fetching user:", error);
     return NextResponse.json(
-      { error: "Failed to fetch or create user" },
+      { error: "Failed to fetch user" },
       { status: 500 }
     );
   }
 }
 
 export async function POST(request: NextRequest) {
-  const { userId } = auth();
+  const { userId } = await request.json();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  await dbConnect();
+  const { db } = await dbConnect();
 
   try {
-    const {
-      stripeCustomerId,
-      subscriptionId,
-      subscriptionStatus,
-      subscriptionPlan,
-    } = await request.json();
+    const clerkUser = await clerkClient.users.getUser(userId);
+    const result = await db?.collection("users").findOneAndUpdate(
+      { clerkId: userId },
+      {
+        $setOnInsert: {
+          name: `${clerkUser.firstName} ${clerkUser.lastName}`,
+          email: clerkUser.emailAddresses[0].emailAddress,
+        },
+      },
+      { upsert: true, returnDocument: "after" }
+    );
 
-    let user = await User.findOne({ clerkId: userId });
-
-    if (!user) {
-      // If the user doesn't exist, create a new one
-      user = new User({ clerkId: userId });
+    if (!result) {
+      throw new Error("Failed to create/fetch user");
     }
 
-    // Update user fields if provided
-    if (stripeCustomerId) user.stripeCustomerId = stripeCustomerId;
-    if (subscriptionId) user.subscriptionId = subscriptionId;
-    if (subscriptionStatus) user.subscriptionStatus = subscriptionStatus;
-    if (subscriptionPlan) user.subscriptionPlan = subscriptionPlan;
-
-    await user.save();
-
+    const user: UserType = result as unknown as UserType;
     return NextResponse.json(user);
   } catch (error) {
-    console.error("Error updating user:", error);
+    console.error("Error creating/fetching user:", error);
     return NextResponse.json(
-      { error: "Failed to update user" },
+      { error: "Failed to create/fetch user" },
       { status: 500 }
     );
   }

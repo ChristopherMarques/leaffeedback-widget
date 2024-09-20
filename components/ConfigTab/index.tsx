@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Config, Project, WidgetConfig } from "@/lib/types";
 import { generateEmbedCode } from "@/lib/utils";
-import ConfigInput from "@/components/Dashboard/ConfigInput";
-import PositionRadioGroup from "@/components/Dashboard/PositionRadioGroup";
-import PreviewSection from "@/components/Dashboard/PreviewSection";
+import ConfigInput from "@/components/ConfigInput";
+import PositionRadioGroup from "@/components/PositionRadioGroup";
+import PreviewSection from "@/components/PreviewSection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {

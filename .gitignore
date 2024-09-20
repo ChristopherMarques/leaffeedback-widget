@@ -6,6 +6,10 @@
 .pnp.js
 .yarn/install-state.gz
 
+# ignore the feedback widget build
+/public/dist
+/public/example.html
+
 # testing
 /coverage
 

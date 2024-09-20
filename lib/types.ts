@@ -1,5 +1,3 @@
-// types.ts
-
 export interface Feedback {
   _id: string;
   content: string;
@@ -12,6 +10,7 @@ export interface Feedback {
 export interface FeedbackListProps {
   feedbacks: Feedback[];
   onSelectFeedback: (feedback: Feedback) => void;
+  loading?: boolean;
 }
 
 export interface FeedbackDetailsProps {
@@ -20,6 +19,7 @@ export interface FeedbackDetailsProps {
 
 export interface FeedbackOverviewProps {
   feedbacks: Feedback[];
+  loading?: boolean;
 }
 
 export type Position =
@@ -48,6 +48,19 @@ export interface Project {
 
 export interface Subscription {
   subscriptionId: string;
+  subscriptionStatus: string;
+  subscriptionPlan: string;
+  subscriptionPlanName: string;
+  subscriptionExpirationDate: string;
+}
+
+import { ObjectId } from "mongodb";
+
+export interface User {
+  _id?: ObjectId;
+  clerkId: string;
+  name: string;
+  email: string;
   subscriptionStatus: string;
   subscriptionPlan: string;
   subscriptionPlanName: string;

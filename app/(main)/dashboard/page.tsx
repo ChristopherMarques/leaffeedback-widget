@@ -4,47 +4,63 @@ import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutDashboard, Settings, CreditCard } from "lucide-react";
 import ConfigTab from "@/components/ConfigTab";
-import Dashboard from "@/components/Dashboard/Dashboard";
+import DashboardComponent from "@/components/DashboardComponent";
 import { useAuth } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import SubscriptionManager from "@/components/SubscriptionManager";
-import {
-  SubscriptionProvider,
-  useSubscription,
-} from "@/contexts/subscription-context";
-
-async function getUserData() {
-  const response = await fetch(`/api/user`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch user data");
-  }
-  return response.json();
-}
+import { Skeleton } from "@/components/ui/skeleton";
+import { hasAccess } from "@/lib/subscriptionUtils";
+import { User } from "@/lib/types";
+import { useUserData } from "@/hooks/use-user-data";
 
 export default function DashboardPage(): JSX.Element {
   const { isLoaded, userId } = useAuth();
-  const { subscription } = useSubscription();
   const router = useRouter();
-  const [_, setUserData] = useState<any>(null);
+  const searchParams = useSearchParams();
+  const [userData, setUserData] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState(
+    searchParams.get("tab") || "dashboard"
+  );
 
   useEffect(() => {
     if (isLoaded && !userId) {
-      router.push("/");
-    } else if (userId) {
-      getUserData()
-        .then((data) => setUserData(data))
-        .catch((error) => console.error("Error fetching user data:", error));
+      router.replace("/");
+      return;
+    }
+
+    if (userId) {
+      useUserData(userId)
+        .then(setUserData)
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+          router.push("/");
+        })
+        .finally(() => setLoading(false));
     }
   }, [isLoaded, userId, router]);
 
-  if (!isLoaded || !userId) {
-    return <div>Loading...</div>;
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    router.push(`/dashboard?tab=${value}`, { scroll: false });
+  };
+
+  if (!isLoaded || loading) {
+    return <DashboardSkeleton />;
+  }
+
+  if (!userData) {
+    return <DashboardSkeleton />;
   }
 
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Feedback Dashboard</h1>
-      <Tabs defaultValue="dashboard" className="space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={handleTabChange}
+        className="space-y-4"
+      >
         <TabsList>
           <TabsTrigger value="dashboard" className="flex items-center">
             <LayoutDashboard className="mr-2 h-4 w-4" />
@@ -59,7 +75,9 @@ export default function DashboardPage(): JSX.Element {
             Manage Plan
           </TabsTrigger>
         </TabsList>
-        <Dashboard />
+        <TabsContent value="dashboard">
+          <DashboardComponent />
+        </TabsContent>
         <TabsContent value="config">
           <ConfigTab />
         </TabsContent>
@@ -67,6 +85,23 @@ export default function DashboardPage(): JSX.Element {
           <SubscriptionManager />
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="container mx-auto p-6">
+      <Skeleton className="h-10 w-64 mb-6" />
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-full" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,9 +1,8 @@
-import User from "@/models/User";
+import { User } from "./types";
 
-export const hasAccess = async (userId: string, requiredPlan: string) => {
-  const user = await User.findOne({ clerkId: userId });
+export const hasAccess = (userData: User, requiredPlan: string) => {
   return (
-    user.subscriptionPlan === requiredPlan &&
-    user.subscriptionStatus === "active"
+    userData.subscriptionPlan === requiredPlan &&
+    userData.subscriptionStatus === "active"
   );
 };

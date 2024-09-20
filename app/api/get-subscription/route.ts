@@ -1,39 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
+import User from "@/models/User";
 
 export async function GET(request: NextRequest) {
+  const userId = request.nextUrl.searchParams.get("userId");
+  if (!userId) {
+    return NextResponse.json({ error: "UserId is required" }, { status: 400 });
+  }
+
+  await dbConnect();
+
   try {
-    const { db } = await dbConnect();
-    const userId = request.nextUrl.searchParams.get("userId");
-
-    if (!db) {
-      return NextResponse.json(
-        { message: "Failed to connect to the database" },
-        { status: 500 }
-      );
+    const user = await User.findOne({ clerkId: userId });
+    if (!user || !user.subscriptionId) {
+      return NextResponse.json({ error: "Subscription not found" }, { status: 404 });
     }
 
-    const user = await db.collection("users").findOne({ clerkId: userId });
-
-    if (user && user.subscriptionId) {
-      return NextResponse.json({
-        subscriptionId: user.subscriptionId,
-        subscriptionStatus: user.subscriptionStatus,
-        subscriptionPlan: user.subscriptionPlan,
-        subscriptionPlanName: user.subscriptionPlanName,
-        subscriptionExpirationDate: user.subscriptionExpirationDate,
-      });
-    } else {
-      return NextResponse.json(
-        { message: "User or subscription not found" },
-        { status: 404 }
-      );
-    }
+    return NextResponse.json({
+      subscriptionId: user.subscriptionId,
+      subscriptionStatus: user.subscriptionStatus,
+      subscriptionPlan: user.subscriptionPlan,
+      subscriptionPlanName: user.subscriptionPlanName,
+      subscriptionExpirationDate: user.subscriptionExpirationDate,
+    });
   } catch (error) {
-    console.error("Error fetching user subscription:", error);
-    return NextResponse.json(
-      { message: "Error fetching user subscription" },
-      { status: 500 }
-    );
+    console.error("Error fetching subscription:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

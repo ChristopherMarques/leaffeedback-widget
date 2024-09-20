@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { PLANS } from "@/lib/plans";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""
@@ -75,10 +76,8 @@ const SubscriptionManager: React.FC = () => {
   };
 
   if (loading) {
-    return <div>Loading subscription information...</div>;
+    return <SubscriptionSkeleton />;
   }
-
-  console.log(subscription);
 
   return (
     <Card>
@@ -104,7 +103,7 @@ const SubscriptionManager: React.FC = () => {
               Expiration Date:{" "}
               {new Date(
                 subscription.subscriptionExpirationDate
-              ).toLocaleDateString()}
+              ).toLocaleDateString() || "-"}
             </AlertDescription>
           </Alert>
         ) : (
@@ -138,5 +137,21 @@ const SubscriptionManager: React.FC = () => {
     </Card>
   );
 };
+
+function SubscriptionSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <Skeleton className="h-6 w-3/4" />
+        <Skeleton className="h-4 w-1/2 mt-2" />
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+      </CardContent>
+    </Card>
+  );
+}
 
 export default SubscriptionManager;
