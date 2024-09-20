@@ -13,6 +13,15 @@ export interface FeedbackListProps {
   loading?: boolean;
 }
 
+export interface User {
+  clerkId: string;
+  subscriptionId: string;
+  subscriptionStatus: string;
+  subscriptionPlan: string;
+  subscriptionPlanName: string;
+  subscriptionExpirationDate: Date;
+}
+
 export interface FeedbackDetailsProps {
   feedback: Feedback | null;
 }

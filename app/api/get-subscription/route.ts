@@ -13,7 +13,10 @@ export async function GET(request: NextRequest) {
   try {
     const user = await User.findOne({ clerkId: userId });
     if (!user || !user.subscriptionId) {
-      return NextResponse.json({ error: "Subscription not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Subscription not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
@@ -25,6 +28,9 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching subscription:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
