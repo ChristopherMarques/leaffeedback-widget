@@ -1,5 +1,7 @@
+import { UserCredential, UserInfo } from "firebase/auth";
+
 export interface Feedback {
-  _id: string;
+  id: string;
   content: string;
   email?: string;
   userId: string;
@@ -40,7 +42,7 @@ export interface WidgetConfig {
 }
 
 export interface Project {
-  _id: string;
+  id: string;
   name: string;
   userId: string;
   createdAt: string;
@@ -54,11 +56,9 @@ export interface Subscription {
   subscriptionExpirationDate: string;
 }
 
-import { ObjectId } from "mongodb";
-
-export interface User {
-  _id?: ObjectId;
-  clerkId: string;
+export interface User extends UserInfo {
+  id: string;
+  accessToken?: string;
   name: string;
   email: string;
   subscriptionStatus: string;

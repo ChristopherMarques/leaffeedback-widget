@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
-import { useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,6 +13,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { PLANS } from "@/lib/plans";
 import { Skeleton } from "@/components/ui/skeleton";
+import { auth } from "@/lib/firebaseConfig";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""
@@ -28,23 +28,23 @@ interface Subscription {
 }
 
 const SubscriptionManager: React.FC = () => {
-  const { userId } = useAuth();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSubscription = async () => {
-      if (!userId) return;
+      const user = auth.currentUser;
+      if (!user) return;
 
-      const response = await fetch(`/api/get-subscription?userId=${userId}`);
+      const response = await fetch(`/api/get-subscription?userId=${user.uid}`);
       const data = await response.json();
       setSubscription(data);
       setLoading(false);
     };
 
     fetchSubscription();
-  }, [userId]);
+  }, []);
 
   const handleSubscribe = async (priceId: string) => {
     try {

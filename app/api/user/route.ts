@@ -1,23 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import User from "@/models/User";
-import { auth, clerkClient } from "@clerk/nextjs/server";
-import { User as UserType } from "@/lib/types";
+import { db } from "@/lib/firebaseAdmin";
+import { getAuth } from "firebase-admin/auth";
 
 export async function GET(request: NextRequest) {
-  const { userId } = auth();
+  const userId = request.nextUrl.searchParams.get("userId");
+
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  await dbConnect();
-
   try {
-    const user: UserType | null = await User.findOne({ clerkId: userId });
-    if (!user) {
+    const userDoc = await db
+      .collection("users")
+      .doc(userId as string)
+      .get();
+    if (!userDoc.exists) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-    return NextResponse.json(user);
+    return NextResponse.json(userDoc.data());
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json(
@@ -28,32 +28,29 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { userId } = await request.json();
+  const { userId, email, name } = await request.json();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { db } = await dbConnect();
-
   try {
-    const clerkUser = await clerkClient.users.getUser(userId);
-    const result = await db?.collection("users").findOneAndUpdate(
-      { clerkId: userId },
-      {
-        $setOnInsert: {
-          name: `${clerkUser.firstName} ${clerkUser.lastName}`,
-          email: clerkUser.emailAddresses[0].emailAddress,
-        },
-      },
-      { upsert: true, returnDocument: "after" }
-    );
-
-    if (!result) {
-      throw new Error("Failed to create/fetch user");
+    const userDocRef = db.collection("users").doc(userId);
+    const userDoc = await userDocRef.get();
+    if (!userDoc.exists) {
+      const newUser = {
+        id: userId,
+        name,
+        email,
+        subscriptionStatus: "inactive",
+        subscriptionPlan: "",
+        subscriptionPlanName: "",
+        subscriptionExpirationDate: "",
+        createdAt: new Date(),
+      };
+      await userDocRef.set(newUser);
+      return NextResponse.json(newUser);
     }
-
-    const user: UserType = result as unknown as UserType;
-    return NextResponse.json(user);
+    return NextResponse.json(userDoc.data());
   } catch (error) {
     console.error("Error creating/fetching user:", error);
     return NextResponse.json(

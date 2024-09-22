@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Config, Project, WidgetConfig } from "@/lib/types";
+import { Config, Project, User, WidgetConfig } from "@/lib/types";
 import { generateEmbedCode } from "@/lib/utils";
 import ConfigInput from "@/components/ConfigInput";
 import PositionRadioGroup from "@/components/PositionRadioGroup";
@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function ConfigTab(): JSX.Element {
   const [widgetConfig, setWidgetConfig] = useState<WidgetConfig>({
@@ -28,6 +29,9 @@ export default function ConfigTab(): JSX.Element {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [newProjectName, setNewProjectName] = useState<string>("");
+  const { user } = useAuth();
+
+  console.log("userOnConfigTab", user);
 
   const { toast } = useToast();
 
@@ -37,7 +41,7 @@ export default function ConfigTab(): JSX.Element {
 
   const fetchProjects = async () => {
     try {
-      const response = await fetch("/api/project");
+      const response = await fetch(`/api/project?userId=${user?.id}`);
       if (response.ok) {
         const data = await response.json();
         setProjects(data);
@@ -57,7 +61,9 @@ export default function ConfigTab(): JSX.Element {
     try {
       const response = await fetch("/api/project", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ name: newProjectName }),
       });
       if (response.ok) {
@@ -137,7 +143,7 @@ export default function ConfigTab(): JSX.Element {
             </SelectTrigger>
             <SelectContent>
               {projects.map((project) => (
-                <SelectItem key={project._id} value={project._id}>
+                <SelectItem key={project.id} value={project.id}>
                   {project.name}
                 </SelectItem>
               ))}
