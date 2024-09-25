@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutDashboard, Settings, CreditCard } from "lucide-react";
 import ConfigTab from "@/components/ConfigTab";
@@ -10,15 +10,13 @@ import SubscriptionManager from "@/components/SubscriptionManager";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/auth-context";
 
-export default function DashboardPage(): JSX.Element {
-  const router = useRouter();
+function DashboardContent(): JSX.Element {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(
     searchParams.get("tab") || "dashboard"
   );
   const { user, loading } = useAuth();
-
-  console.log("userOnDashboard", user);
+  const router = useRouter();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -72,6 +70,27 @@ export default function DashboardPage(): JSX.Element {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+export default function DashboardPage(): JSX.Element {
+  const router = useRouter();
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/");
+    }
+  }, [user, loading, router]);
+
+  if (loading || !user) {
+    return <DashboardSkeleton />;
+  }
+
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardContent />
+    </Suspense>
   );
 }
 
