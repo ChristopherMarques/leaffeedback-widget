@@ -2,8 +2,8 @@
 
 import { Toaster } from "@/components/ui/toaster";
 import React, { PropsWithChildren } from "react";
-import { UserButton } from "@clerk/nextjs";
 import { SubscriptionProvider } from "@/contexts/subscription-context";
+import Logout from "@/components/Logout";
 
 const MainLayout = ({ children }: PropsWithChildren) => {
   return (
@@ -11,7 +11,7 @@ const MainLayout = ({ children }: PropsWithChildren) => {
       <Toaster />
       <div className="flex flex-col h-screen w-screen overflow-auto">
         <header className="p-4 flex justify-end">
-          <UserButton signInUrl="/sign-in" />
+          <Logout />
         </header>
         {children}
       </div>

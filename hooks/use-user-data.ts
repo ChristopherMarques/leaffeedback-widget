@@ -1,13 +1,34 @@
-export const useUserData = async (userId: string) => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ userId }),
-  });
+import { User } from "@/lib/types";
+
+export const useUserData = async (user: User) => {
+  let response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/user?userId=${user.uid}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
   if (!response.ok) {
-    throw new Error("Failed to fetch user data");
+    response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: user.uid,
+        email: user.email,
+        name: user.displayName,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to create user");
+    }
   }
-  return response.json();
+
+  const userData = await response.json();
+  return { user: userData };
 };

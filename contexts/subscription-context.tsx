@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth } from "@/contexts/auth-context";
 import { Subscription } from "@/lib/types";
 
 interface SubscriptionContextProps {
@@ -15,17 +15,17 @@ const SubscriptionContext = createContext<SubscriptionContextProps | undefined>(
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { userId } = useAuth();
+  const { user } = useAuth();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSubscription = async () => {
-      if (!userId) return;
+      if (!user) return;
 
       try {
-        const response = await fetch(`/api/get-subscription?userId=${userId}`);
+        const response = await fetch(`/api/get-subscription?userId=${user.id}`);
         const data = await response.json();
         setSubscription(data);
       } catch (err) {
@@ -36,7 +36,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     fetchSubscription();
-  }, [userId]);
+  }, [user]);
 
   return (
     <SubscriptionContext.Provider value={{ subscription, loading, error }}>

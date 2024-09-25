@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import Project from "@/models/Project";
-import { auth } from "@clerk/nextjs/server";
+import { db } from "@/lib/firebaseAdmin";
+import { getAuth } from "firebase-admin/auth";
 
 export async function GET(request: NextRequest) {
-  const { userId } = auth();
+  const userId = request.nextUrl.searchParams.get("userId");
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "UserId is required" }, { status: 400 });
   }
 
-  await dbConnect();
-
   try {
-    const projects = await Project.find({ userId }).sort({ createdAt: -1 });
+    const projectsSnapshot = await db
+      .collection("projects")
+      .where("userId", "==", userId)
+      .orderBy("createdAt", "desc")
+      .get();
+    const projects = projectsSnapshot.docs.map((doc) => doc.data());
     return NextResponse.json(projects);
   } catch (error) {
     console.error("Error fetching projects:", error);
@@ -24,12 +26,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const { userId } = auth();
+  const userId = request.nextUrl.searchParams.get("userId");
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "UserId is required" }, { status: 400 });
   }
-
-  await dbConnect();
 
   try {
     const { name } = await request.json();
@@ -39,8 +39,15 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const project = await Project.create({ name, userId });
-    return NextResponse.json(project, { status: 201 });
+
+    const newProject = {
+      name,
+      userId,
+      createdAt: new Date(),
+    };
+
+    await db.collection("projects").add(newProject);
+    return NextResponse.json(newProject, { status: 201 });
   } catch (error) {
     console.error("Error creating project:", error);
     return NextResponse.json(

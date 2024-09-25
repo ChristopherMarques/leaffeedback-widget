@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import User from "@/models/User";
+import { db } from "@/lib/firebaseAdmin";
 
 export async function GET(request: NextRequest) {
   const userId = request.nextUrl.searchParams.get("userId");
@@ -8,23 +7,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "UserId is required" }, { status: 400 });
   }
 
-  await dbConnect();
-
   try {
-    const user = await User.findOne({ clerkId: userId });
-    if (!user || !user.subscriptionId) {
+    const userDoc = await db.collection("users").doc(userId).get();
+    if (!userDoc.exists) {
       return NextResponse.json(
         { error: "Subscription not found" },
         { status: 404 }
       );
     }
 
+    const userData = userDoc.data();
     return NextResponse.json({
-      subscriptionId: user.subscriptionId,
-      subscriptionStatus: user.subscriptionStatus,
-      subscriptionPlan: user.subscriptionPlan,
-      subscriptionPlanName: user.subscriptionPlanName,
-      subscriptionExpirationDate: user.subscriptionExpirationDate,
+      subscriptionId: userData?.subscriptionId,
+      subscriptionStatus: userData?.subscriptionStatus,
+      subscriptionPlan: userData?.subscriptionPlan,
+      subscriptionPlanName: userData?.subscriptionPlanName,
+      subscriptionExpirationDate: userData?.subscriptionExpirationDate,
     });
   } catch (error) {
     console.error("Error fetching subscription:", error);

@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import React from "react";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
-import { clerkStyle } from "@/lib/clerkStyle";
+import { AuthProvider } from "@/contexts/auth-context";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -15,10 +14,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider appearance={clerkStyle}>
+    <AuthProvider>
       <html lang="en">
         <body className="antialiased">{children}</body>
       </html>
-    </ClerkProvider>
+    </AuthProvider>
   );
 }

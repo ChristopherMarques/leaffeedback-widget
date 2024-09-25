@@ -1,55 +1,39 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LayoutDashboard, Settings, CreditCard } from "lucide-react";
 import ConfigTab from "@/components/ConfigTab";
 import DashboardComponent from "@/components/DashboardComponent";
-import { useAuth } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import SubscriptionManager from "@/components/SubscriptionManager";
 import { Skeleton } from "@/components/ui/skeleton";
-import { hasAccess } from "@/lib/subscriptionUtils";
-import { User } from "@/lib/types";
-import { useUserData } from "@/hooks/use-user-data";
+import { useAuth } from "@/contexts/auth-context";
 
-export default function DashboardPage(): JSX.Element {
-  const { isLoaded, userId } = useAuth();
-  const router = useRouter();
+function DashboardContent(): JSX.Element {
   const searchParams = useSearchParams();
-  const [userData, setUserData] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(
     searchParams.get("tab") || "dashboard"
   );
+  const { user, loading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    if (isLoaded && !userId) {
+    if (!loading && !user) {
       router.replace("/");
-      return;
     }
-
-    if (userId) {
-      useUserData(userId)
-        .then(setUserData)
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-          router.push("/");
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [isLoaded, userId, router]);
+  }, [user, loading, router]);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     router.push(`/dashboard?tab=${value}`, { scroll: false });
   };
 
-  if (!isLoaded || loading) {
+  if (loading) {
     return <DashboardSkeleton />;
   }
 
-  if (!userData) {
+  if (!user) {
     return <DashboardSkeleton />;
   }
 
@@ -86,6 +70,27 @@ export default function DashboardPage(): JSX.Element {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+export default function DashboardPage(): JSX.Element {
+  const router = useRouter();
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/");
+    }
+  }, [user, loading, router]);
+
+  if (loading || !user) {
+    return <DashboardSkeleton />;
+  }
+
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardContent />
+    </Suspense>
   );
 }
 

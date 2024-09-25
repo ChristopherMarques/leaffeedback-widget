@@ -1,16 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import Feedback from "@/models/Feedback";
-import { auth } from "@clerk/nextjs/server";
+import { db } from "@/lib/firebaseAdmin";
+import { getAuth } from "firebase-admin/auth";
 
 export async function POST(request: NextRequest) {
-  const { userId } = auth();
-  if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  await dbConnect();
-
   try {
     const { content, email, projectId } = await request.json();
     if (!content || !projectId) {
@@ -19,13 +11,16 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const feedback = await Feedback.create({
+
+    const newFeedback = {
       content,
       email,
-      userId,
       projectId,
-    });
-    return NextResponse.json(feedback, { status: 201 });
+      createdAt: new Date(),
+    };
+
+    await db.collection("feedbacks").add(newFeedback);
+    return NextResponse.json(newFeedback, { status: 201 });
   } catch (error) {
     console.error("Error creating feedback:", error);
     return NextResponse.json(
@@ -36,15 +31,18 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const { userId } = auth();
+  const userId = request.nextUrl.searchParams.get("userId");
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "UserId is required" }, { status: 400 });
   }
 
-  await dbConnect();
-
   try {
-    const feedbacks = await Feedback.find({ userId }).sort({ createdAt: -1 });
+    const feedbacksSnapshot = await db
+      .collection("feedbacks")
+      .where("userId", "==", userId)
+      .orderBy("createdAt", "desc")
+      .get();
+    const feedbacks = feedbacksSnapshot.docs.map((doc) => doc.data());
     return NextResponse.json(feedbacks);
   } catch (error) {
     return NextResponse.json(

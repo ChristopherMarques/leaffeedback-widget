@@ -10,7 +10,7 @@ import FeedbackOverview from "../FeedbackOverview";
 import ReportGenerator from "../ReportGenerator";
 import { hasAccess } from "@/lib/subscriptionUtils";
 import ProFeatureOverlay from "../ProFeatureOverlay";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth } from "@/contexts/auth-context";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Dashboard(): JSX.Element {
@@ -19,13 +19,12 @@ export default function Dashboard(): JSX.Element {
   );
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [_, setUserData] = useState<User | null>(null);
   const [proFeatures, setProFeatures] = useState({
     aiAnalytics: false,
     reportGenerator: false,
   });
 
-  const { userId } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchFeedbacks();
@@ -35,7 +34,11 @@ export default function Dashboard(): JSX.Element {
   const fetchFeedbacks = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/feedback");
+      const response = await fetch("/api/feedback", {
+        headers: {
+          Authorization: `Bearer ${user?.accessToken}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setFeedbacks(data);
@@ -50,14 +53,11 @@ export default function Dashboard(): JSX.Element {
   };
 
   const fetchUserData = async () => {
-    if (userId) {
+    if (user) {
       try {
-        const response = await fetch(`/api/user/`);
-        if (response.ok) {
-          const data: User = await response.json();
-          setUserData(data);
+        if (user.subscriptionPlan) {
           const hasPro = hasAccess(
-            data,
+            user,
             process.env.NEXT_PUBLIC_PRO_PRICE_ID || ""
           );
           setProFeatures({
