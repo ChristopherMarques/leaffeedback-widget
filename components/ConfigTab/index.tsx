@@ -143,7 +143,7 @@ export default function ConfigTab(): JSX.Element {
             </SelectTrigger>
             <SelectContent>
               {projects.map((project) => (
-                <SelectItem key={project.id} value={project.id}>
+                <SelectItem key={project.id} value={project.name}>
                   {project.name}
                 </SelectItem>
               ))}

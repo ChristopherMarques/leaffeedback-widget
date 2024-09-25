@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 import { createRoot } from "react-dom/client";
-import "../../app/globals.css";
+import "../../public/dist/output.css";
 import { useToast } from "@/hooks/use-toast";
 
 interface FeedbackProps {
