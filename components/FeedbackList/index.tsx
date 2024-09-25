@@ -20,7 +20,7 @@ export default function FeedbackList({
           <ul className="space-y-2">
             {feedbacks.map((feedback) => (
               <li
-                key={feedback._id}
+                key={feedback.id}
                 className="p-2 hover:bg-gray-100 rounded cursor-pointer"
                 onClick={() => onSelectFeedback(feedback)}
               >
