@@ -12,7 +12,6 @@ import { hasAccess } from "@/lib/subscriptionUtils";
 import ProFeatureOverlay from "../ProFeatureOverlay";
 import { useAuth } from "@/contexts/auth-context";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getAuth } from "firebase/auth";
 
 export default function Dashboard(): JSX.Element {
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(
@@ -56,16 +55,9 @@ export default function Dashboard(): JSX.Element {
   const fetchUserData = async () => {
     if (user) {
       try {
-        const response = await fetch(`/api/user/${user.uid}`, {
-          headers: {
-            Authorization: `Bearer ${user?.accessToken}`,
-          },
-        });
-        if (response.ok) {
-          const data: User = await response.json();
-          fetchUserData();
+        if (user.subscriptionPlan) {
           const hasPro = hasAccess(
-            data,
+            user,
             process.env.NEXT_PUBLIC_PRO_PRICE_ID || ""
           );
           setProFeatures({

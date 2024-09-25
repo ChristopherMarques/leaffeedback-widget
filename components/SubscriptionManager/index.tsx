@@ -24,17 +24,19 @@ interface Subscription {
   subscriptionStatus: string;
   subscriptionPlan: string;
   subscriptionPlanName: string;
-  subscriptionExpirationDate: string;
+  subscriptionExpirationDate: {
+    _seconds: number;
+    _nanoseconds: number;
+  };
 }
 
 const SubscriptionManager: React.FC = () => {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const user = auth.currentUser;
   useEffect(() => {
     const fetchSubscription = async () => {
-      const user = auth.currentUser;
       if (!user) return;
 
       const response = await fetch(`/api/get-subscription?userId=${user.uid}`);
@@ -53,11 +55,14 @@ const SubscriptionManager: React.FC = () => {
         throw new Error("Stripe failed to load. Please try again.");
       }
 
-      const response = await fetch("/api/stripe/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId }),
-      });
+      const response = await fetch(
+        `/api/stripe/create-checkout-session?userId=${user?.uid || ""}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ priceId }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to create checkout session.");
@@ -75,10 +80,21 @@ const SubscriptionManager: React.FC = () => {
     }
   };
 
+  const formatFirestoreTimestamp = (
+    timestamp: Subscription["subscriptionExpirationDate"]
+  ): string => {
+    if (!timestamp) return "N/A";
+
+    if (timestamp._seconds && timestamp._nanoseconds) {
+      return new Date(timestamp._seconds * 1000).toLocaleDateString();
+    }
+
+    return new Date(timestamp._seconds * 1000).toLocaleDateString();
+  };
+
   if (loading) {
     return <SubscriptionSkeleton />;
   }
-
   return (
     <Card>
       <CardHeader>
@@ -101,11 +117,9 @@ const SubscriptionManager: React.FC = () => {
               Status: {subscription.subscriptionStatus}
               <br />
               Expiration Date:{" "}
-              {subscription.subscriptionExpirationDate
-                ? new Date(
-                    subscription.subscriptionExpirationDate
-                  ).toLocaleDateString()
-                : "N/A"}
+              {formatFirestoreTimestamp(
+                subscription.subscriptionExpirationDate
+              )}
             </AlertDescription>
           </Alert>
         ) : (

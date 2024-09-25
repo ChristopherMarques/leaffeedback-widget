@@ -6,17 +6,15 @@ import Stripe from "stripe";
 
 export async function POST(request: NextRequest) {
   if (!process.env.NEXT_PUBLIC_BASE_URL) {
-    throw new Error("NEXT_PUBLIC_BASE_URL is not set in the environment variables");
+    throw new Error(
+      "NEXT_PUBLIC_BASE_URL is not set in the environment variables"
+    );
   }
 
-  const authHeader = request.headers.get("Authorization");
-  if (!authHeader) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = request.nextUrl.searchParams.get("userId");
+  if (!userId) {
+    return NextResponse.json({ error: "UserId is required" }, { status: 400 });
   }
-
-  const token = authHeader.split(" ")[1];
-  const decodedToken = await getAuth().verifyIdToken(token);
-  const userId = decodedToken.uid;
 
   const { priceId } = await request.json();
 
@@ -29,20 +27,27 @@ export async function POST(request: NextRequest) {
         metadata: { userId },
       });
       stripeCustomerId = customer.id;
-      await db.collection("users").doc(userId).set({ stripeCustomerId }, { merge: true });
+      await db
+        .collection("users")
+        .doc(userId)
+        .set({ stripeCustomerId }, { merge: true });
     }
 
-    const session: Stripe.Checkout.Session = await stripe.checkout.sessions.create({
-      customer: stripeCustomerId,
-      line_items: [{ price: priceId, quantity: 1 }],
-      mode: "subscription",
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/update-subscription?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?canceled=true`,
-    });
+    const session: Stripe.Checkout.Session =
+      await stripe.checkout.sessions.create({
+        customer: stripeCustomerId,
+        line_items: [{ price: priceId, quantity: 1 }],
+        mode: "subscription",
+        success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/user/update-subscription?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?canceled=true`,
+      });
 
     return NextResponse.json({ sessionId: session.id });
   } catch (error) {
     console.error("Error creating checkout session:", error);
-    return NextResponse.json({ error: "Failed to create checkout session" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create checkout session" },
+      { status: 500 }
+    );
   }
 }

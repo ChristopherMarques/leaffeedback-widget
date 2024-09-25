@@ -18,9 +18,11 @@ export default function DashboardPage(): JSX.Element {
   );
   const { user, loading } = useAuth();
 
+  console.log("userOnDashboard", user);
+
   useEffect(() => {
     if (!loading && !user) {
-      router.replace("/sign-in");
+      router.replace("/");
     }
   }, [user, loading, router]);
 

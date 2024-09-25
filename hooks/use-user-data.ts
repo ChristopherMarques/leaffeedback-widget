@@ -1,6 +1,4 @@
-import { getCookie } from "cookies-next";
-import { getAuth } from "firebase-admin/auth";
-import { User } from "firebase/auth";
+import { User } from "@/lib/types";
 
 export const useUserData = async (user: User) => {
   let response = await fetch(
