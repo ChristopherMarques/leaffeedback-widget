@@ -18,12 +18,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+    const unsubscribe = auth.onIdTokenChanged(async (firebaseUser) => {
       if (firebaseUser) {
-        const { user: userData } = await useUserData(firebaseUser);
+        const { user: userData } = await useUserData(
+          firebaseUser as unknown as User
+        );
         setUser({
           ...userData,
-          accessToken: firebaseUser.accessToken as string,
+          accessToken: await firebaseUser.getIdToken(),
         });
       } else {
         setUser(null);
