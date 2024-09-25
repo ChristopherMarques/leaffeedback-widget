@@ -59,7 +59,7 @@ export default function ConfigTab(): JSX.Element {
 
   const handleCreateProject = async () => {
     try {
-      const response = await fetch("/api/project", {
+      const response = await fetch(`/api/project?userId=${user?.id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
