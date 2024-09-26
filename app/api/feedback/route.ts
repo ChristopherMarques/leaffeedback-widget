@@ -31,15 +31,18 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const userId = request.nextUrl.searchParams.get("userId");
-  if (!userId) {
-    return NextResponse.json({ error: "UserId is required" }, { status: 400 });
+  const projectId = request.nextUrl.searchParams.get("projectId");
+  if (!projectId) {
+    return NextResponse.json(
+      { error: "ProjectId is required" },
+      { status: 400 }
+    );
   }
 
   try {
     const feedbacksSnapshot = await db
       .collection("feedbacks")
-      .where("userId", "==", userId)
+      .where("projectId", "==", projectId)
       .orderBy("createdAt", "desc")
       .get();
     const feedbacks = feedbacksSnapshot.docs.map((doc) => doc.data());
