@@ -6,7 +6,7 @@ export interface Feedback {
   email?: string;
   userId: string;
   projectId: string;
-  createdAt: string;
+  createdAt: Date;
 }
 
 export interface FeedbackListProps {
@@ -35,10 +35,15 @@ export interface Config extends WidgetConfig {
 }
 
 export interface WidgetConfig {
+  widgetId: string;
   position: Position;
   primaryColor: string;
   secondaryColor: string;
   companyName: string;
+  projectId: string;
+  buttonText?: string;
+  buttonIcon?: string;
+  buttonAnimation?: string;
 }
 
 export interface Project {
@@ -46,6 +51,7 @@ export interface Project {
   name: string;
   userId: string;
   createdAt: string;
+  widgetId: string;
 }
 
 export interface Subscription {

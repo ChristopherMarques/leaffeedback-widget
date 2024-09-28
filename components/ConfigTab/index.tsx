@@ -1,186 +1,63 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { Config, Project, User, WidgetConfig } from "@/lib/types";
-import { generateEmbedCode } from "@/lib/utils";
-import ConfigInput from "@/components/ConfigInput";
-import PositionRadioGroup from "@/components/PositionRadioGroup";
+import React from "react";
+import { User, WidgetConfig } from "@/lib/types";
 import PreviewSection from "@/components/PreviewSection";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useAuth } from "@/contexts/auth-context";
+import ProFeatures from "@/components/ProFeatures";
+import { hasAccess } from "@/lib/subscriptionUtils";
+import ProFeatureOverlay from "../ProFeatureOverlay";
+import { useProjectsAndWidgetConfig } from "@/hooks/use-projects-widgets";
+import ProjectManagement from "@/components/ProjectManagement";
+import WidgetConfiguration from "@/components/WidgetConfiguration";
 
 export default function ConfigTab(): JSX.Element {
-  const [widgetConfig, setWidgetConfig] = useState<WidgetConfig>({
-    position: "bottom-right",
-    primaryColor: "#686B59",
-    secondaryColor: "#ffffff",
-    companyName: "My Company",
-  });
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [selectedProjectId, setSelectedProjectId] = useState<string>("");
-  const [newProjectName, setNewProjectName] = useState<string>("");
+  const {
+    widgetConfig,
+    setWidgetConfig,
+    projects,
+    selectedProjectId,
+    setSelectedProjectId,
+    isLoading,
+    handleCreateProject,
+    handleGenerateEmbedCode,
+  } = useProjectsAndWidgetConfig();
+
   const { user } = useAuth();
 
-  console.log("userOnConfigTab", user);
-
-  const { toast } = useToast();
-
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  const fetchProjects = async () => {
-    try {
-      const response = await fetch(`/api/project?userId=${user?.id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setProjects(data);
-      } else {
-        console.error("Failed to fetch projects");
-      }
-    } catch (error) {
-      console.error("Error fetching projects:", error);
-    }
-  };
+  const hasPro = hasAccess(
+    user as unknown as User,
+    process.env.NEXT_PUBLIC_PRO_PRICE_ID as string
+  );
 
   const handleConfigChange = (key: keyof WidgetConfig, value: string) => {
-    setWidgetConfig((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleCreateProject = async () => {
-    try {
-      const response = await fetch(`/api/project?userId=${user?.id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: newProjectName }),
-      });
-      if (response.ok) {
-        const newProject = await response.json();
-        setProjects([...projects, newProject]);
-        setNewProjectName("");
-        toast({
-          title: "Project created",
-          description: "Your new project has been created successfully.",
-        });
-      } else {
-        throw new Error("Failed to create project");
-      }
-    } catch (error) {
-      console.error("Error creating project:", error);
-      toast({
-        title: "Error",
-        description: "Failed to create project. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleGenerateEmbedCode = () => {
-    if (!selectedProjectId) {
-      toast({
-        title: "Error",
-        description:
-          "Please select a project before generating the embed code.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const config: Config = { ...widgetConfig, projectId: selectedProjectId };
-    const embedCode = generateEmbedCode(config);
-    navigator.clipboard
-      .writeText(embedCode)
-      .then(() => {
-        toast({
-          title: "Embed code copied to clipboard",
-          description:
-            "Paste this code into your website to add the feedback widget.",
-        });
-      })
-      .catch((err) => {
-        console.error("Failed to copy: ", err);
-        toast({
-          title: "Failed to copy embed code",
-          variant: "destructive",
-          description: "Please try again or copy the code manually.",
-        });
-      });
+    setWidgetConfig((prev: WidgetConfig) => ({ ...prev, [key]: value }));
   };
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Project Management</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Input
-              placeholder="New project name"
-              value={newProjectName}
-              onChange={(e) => setNewProjectName(e.target.value)}
-            />
-            <Button onClick={handleCreateProject}>Create Project</Button>
-          </div>
-          <Select
-            value={selectedProjectId}
-            onValueChange={setSelectedProjectId}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select a project" />
-            </SelectTrigger>
-            <SelectContent>
-              {projects.map((project) => (
-                <SelectItem key={project.id} value={project.name}>
-                  {project.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
+      <ProjectManagement
+        projects={projects}
+        selectedProjectId={selectedProjectId}
+        setSelectedProjectId={setSelectedProjectId}
+        onCreateProject={handleCreateProject}
+        hasPro={hasPro}
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Widget Configuration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <ConfigInput
-            label="Company Name"
-            value={widgetConfig.companyName}
-            onChange={(value) => handleConfigChange("companyName", value)}
-          />
-          <ConfigInput
-            label="Primary Color"
-            type="color"
-            value={widgetConfig.primaryColor}
-            onChange={(value) => handleConfigChange("primaryColor", value)}
-          />
-          <ConfigInput
-            label="Secondary Color"
-            type="color"
-            value={widgetConfig.secondaryColor}
-            onChange={(value) => handleConfigChange("secondaryColor", value)}
-          />
-          <PositionRadioGroup
-            value={widgetConfig.position}
-            onChange={(value) => handleConfigChange("position", value)}
-          />
-          <Button onClick={handleGenerateEmbedCode}>Generate Embed Code</Button>
-        </CardContent>
-      </Card>
+      <WidgetConfiguration
+        widgetConfig={widgetConfig}
+        onConfigChange={handleConfigChange}
+        onGenerateEmbedCode={handleGenerateEmbedCode}
+        isLoading={isLoading}
+      />
+
+      <ProFeatureOverlay hasPro={hasPro}>
+        <ProFeatures
+          widgetConfig={widgetConfig}
+          onConfigChange={handleConfigChange}
+          selectedProjectId={selectedProjectId}
+        />
+      </ProFeatureOverlay>
 
       <PreviewSection
         config={{ ...widgetConfig, projectId: selectedProjectId }}

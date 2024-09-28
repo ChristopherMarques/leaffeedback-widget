@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/firebaseAdmin";
 import { getAuth } from "firebase-admin/auth";
+import { Feedback } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +13,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newFeedback = {
+    const newFeedback: Partial<Feedback> = {
       content,
       email,
       projectId,

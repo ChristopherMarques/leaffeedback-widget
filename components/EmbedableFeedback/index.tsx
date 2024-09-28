@@ -8,14 +8,7 @@ import { X } from "lucide-react";
 import { createRoot } from "react-dom/client";
 import "../../public/dist/output.css";
 import { useToast } from "@/hooks/use-toast";
-
-interface FeedbackProps {
-  position: "top-left" | "top-right" | "bottom-left" | "bottom-right";
-  primaryColor: string;
-  secondaryColor: string;
-  companyName: string;
-  projectId: string;
-}
+import { WidgetConfig } from "@/lib/types";
 
 if (typeof window !== "undefined") {
   (window as any).initializeFeedbackWidget = (
@@ -36,7 +29,10 @@ export default function EmbeddableFeedback({
   secondaryColor,
   companyName,
   projectId,
-}: FeedbackProps) {
+  widgetId,
+  buttonAnimation,
+  buttonText,
+}: WidgetConfig) {
   const [isOpen, setIsOpen] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [email, setEmail] = useState("");
@@ -59,7 +55,12 @@ export default function EmbeddableFeedback({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ content: feedback, email, projectId }),
+          body: JSON.stringify({
+            content: feedback,
+            email,
+            projectId,
+            widgetId,
+          }),
         }
       );
       if (response.ok) {
@@ -85,9 +86,10 @@ export default function EmbeddableFeedback({
         {!isOpen && (
           <Button
             onClick={() => setIsOpen(true)}
+            className={`${buttonAnimation}`}
             style={{ backgroundColor: primaryColor, color: secondaryColor }}
           >
-            Feedback
+            {buttonText || "Feedback"}
           </Button>
         )}
         {isOpen && (

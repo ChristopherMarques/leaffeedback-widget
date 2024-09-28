@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { name } = await request.json();
+    const { name, id } = await request.json();
     if (!name) {
       return NextResponse.json(
         { error: "Project name is required" },
@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
     }
 
     const newProject = {
+      id,
       name,
       userId,
       createdAt: new Date(),
@@ -52,6 +53,42 @@ export async function POST(request: NextRequest) {
     console.error("Error creating project:", error);
     return NextResponse.json(
       { error: "Failed to create project" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  const { id, widgetId } = await request.json();
+  if (!id || !widgetId) {
+    return NextResponse.json(
+      { error: "Project ID and Widget ID are required" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const projectsRef = db.collection("projects");
+    const querySnapshot = await projectsRef
+      .where("id", "==", id)
+      .limit(1)
+      .get();
+
+    if (querySnapshot.empty) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    const projectDoc = querySnapshot.docs[0];
+    await projectDoc.ref.update({ widgetId });
+
+    return NextResponse.json(
+      { message: "Project updated successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error updating project:", error);
+    return NextResponse.json(
+      { error: "Failed to update project" },
       { status: 500 }
     );
   }

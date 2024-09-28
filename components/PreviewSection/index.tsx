@@ -18,7 +18,7 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({ config }) => {
   const embedCode = generateEmbedCode(config);
 
   return (
-    <Card className="relative h-96">
+    <Card className="relative h-auto">
       <CardHeader>
         <CardTitle>Preview</CardTitle>
       </CardHeader>
