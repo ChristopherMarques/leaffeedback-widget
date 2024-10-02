@@ -19,6 +19,7 @@ import { formatFirestoreTimestamp } from "@/lib/utils";
 
 export default function FeedbackList({
   onSelectFeedback,
+  onSelectProject,
 }: FeedbackListProps): JSX.Element {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [projectId, setProjectId] = useState<Project["id"]>("");
@@ -49,6 +50,7 @@ export default function FeedbackList({
   const handleProjectChange = (projectId: string) => {
     setProjectId(projectId);
     onSelectFeedback(null);
+    onSelectProject(projectId);
   };
 
   const fetchProjects = async () => {

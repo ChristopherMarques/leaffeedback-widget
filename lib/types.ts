@@ -11,6 +11,7 @@ export interface Feedback {
 
 export interface FeedbackListProps {
   onSelectFeedback: (feedback: Feedback | null) => void;
+  onSelectProject: (projectId: string) => void;
 }
 
 export interface FeedbackDetailsProps {
@@ -19,6 +20,7 @@ export interface FeedbackDetailsProps {
 
 export interface FeedbackOverviewProps {
   feedbacks: Feedback[];
+  projectId: string;
   loading?: boolean;
 }
 

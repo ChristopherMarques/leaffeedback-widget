@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { TabsContent } from "@/components/ui/tabs";
-import { Feedback, User } from "@/lib/types";
+import { Feedback, Project, User } from "@/lib/types";
 import FeedbackList from "../FeedbackList";
 import FeedbackDetails from "../FeedbackDetails";
 import AIAnalytics from "../AIAnalytics";
@@ -17,6 +17,7 @@ export default function Dashboard(): JSX.Element {
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(
     null
   );
+  const [selectedProject, setSelectedProject] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [proFeatures, setProFeatures] = useState({
     aiAnalytics: false,
@@ -91,16 +92,20 @@ export default function Dashboard(): JSX.Element {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FeedbackList onSelectFeedback={setSelectedFeedback} />
+          <FeedbackList
+            onSelectProject={setSelectedProject}
+            onSelectFeedback={setSelectedFeedback}
+          />
           <FeedbackDetails feedback={selectedFeedback} />
 
           <ProFeatureOverlay hasPro={proFeatures.aiAnalytics}>
-            <AIAnalytics />
+            <AIAnalytics projectId={selectedProject} />
           </ProFeatureOverlay>
 
           <div className="space-y-6">
             <FeedbackOverview
               feedbacks={feedbacks}
+              projectId={selectedProject}
               loading={loadingFeedbacks}
             />
             <ProFeatureOverlay hasPro={proFeatures.reportGenerator}>

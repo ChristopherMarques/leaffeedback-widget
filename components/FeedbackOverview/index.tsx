@@ -5,9 +5,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function FeedbackOverview({
   feedbacks,
+  projectId,
   loading = false,
 }: FeedbackOverviewProps): JSX.Element {
-  const totalFeedbacks = feedbacks.length;
+  const totalFeedbacks = feedbacks.filter(
+    (feedback) => feedback.projectId === projectId
+  ).length;
   const positiveFeedbacks = 5;
   const negativeFeedbacks = 3;
   const neutralFeedbacks =

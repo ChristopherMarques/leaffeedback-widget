@@ -55,3 +55,29 @@ export async function createWidget(
 
   return response.json();
 }
+
+export async function generateAIAnalytics(projectId: string): Promise<any> {
+  const response = await fetch(`/api/ai-analytics`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ projectId }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to generate AI analytics");
+  }
+
+  return response.json();
+}
+
+export async function getAIAnalytics(projectId: string): Promise<any> {
+  const response = await fetch(`/api/ai-analytics?projectId=${projectId}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch AI analytics");
+  }
+
+  return response.json();
+}
