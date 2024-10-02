@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/firebaseAdmin";
-import { getAuth } from "firebase-admin/auth";
 
 export async function GET(request: NextRequest) {
   const userId = request.nextUrl.searchParams.get("userId");
@@ -32,7 +31,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { name, id } = await request.json();
+    const { name } = await request.json();
     if (!name) {
       return NextResponse.json(
         { error: "Project name is required" },
@@ -41,14 +40,16 @@ export async function POST(request: NextRequest) {
     }
 
     const newProject = {
-      id,
+      id: crypto.randomUUID(),
       name,
       userId,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     };
 
-    await db.collection("projects").add(newProject);
-    return NextResponse.json(newProject, { status: 201 });
+    const docRef = await db.collection("projects").add(newProject);
+    const createdProject = { ...newProject, firebaseId: docRef.id };
+
+    return NextResponse.json(createdProject, { status: 201 });
   } catch (error) {
     console.error("Error creating project:", error);
     return NextResponse.json(
@@ -60,7 +61,7 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   const { id, widgetId } = await request.json();
-  if (!id || !widgetId) {
+  if (!id && !widgetId) {
     return NextResponse.json(
       { error: "Project ID and Widget ID are required" },
       { status: 400 }

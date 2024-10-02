@@ -6,20 +6,10 @@ import { WidgetConfig } from "@/lib/types";
 export async function POST(request: NextRequest) {
   try {
     const widgetConfig: WidgetConfig = await request.json();
-    const authHeader = request.headers.get("Authorization");
-
-    if (!authHeader) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const token = authHeader.split("Bearer ")[1];
-    const decodedToken = await getAuth().verifyIdToken(token);
-    const userId = decodedToken.uid;
 
     const newWidget = {
       ...widgetConfig,
-      userId,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     };
 
     const widgetsCollectionRef = db.collection("widgets");
@@ -55,7 +45,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const widgetId = request.nextUrl.searchParams.get("id");
+    const widgetId = request.nextUrl.searchParams.get("widgetId");
 
     if (!widgetId) {
       return NextResponse.json(
@@ -64,29 +54,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const authHeader = request.headers.get("Authorization");
+    const widgetsSnapshot = await db
+      .collection("widgets")
+      .where("widgetId", "==", widgetId)
+      .limit(1)
+      .get();
 
-    if (!authHeader) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const token = authHeader.split("Bearer ")[1];
-    const decodedToken = await getAuth().verifyIdToken(token);
-    const userId = decodedToken.uid;
-
-    const widgetDoc = await db.collection("widgets").doc(widgetId).get();
-
-    if (!widgetDoc.exists) {
+    if (widgetsSnapshot.empty) {
       return NextResponse.json({ error: "Widget not found" }, { status: 404 });
     }
 
-    const widgetData = widgetDoc.data() as WidgetConfig & { userId: string };
+    const widgetDoc = widgetsSnapshot.docs[0];
+    const widgetData = widgetDoc.data() as WidgetConfig;
 
-    if (widgetData.userId !== userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-    }
-
-    return NextResponse.json({ ...widgetData, id: widgetId }, { status: 200 });
+    return NextResponse.json(
+      { ...widgetData, id: widgetDoc.id },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error fetching widget:", error);
     return NextResponse.json(

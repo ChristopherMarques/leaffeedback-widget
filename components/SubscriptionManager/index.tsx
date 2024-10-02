@@ -14,6 +14,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { PLANS } from "@/lib/plans";
 import { Skeleton } from "@/components/ui/skeleton";
 import { auth } from "@/lib/firebaseConfig";
+import { FirebaseTimestamp } from "@/lib/types";
+import { formatFirestoreTimestamp } from "@/lib/utils";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""
@@ -24,10 +26,7 @@ interface Subscription {
   subscriptionStatus: string;
   subscriptionPlan: string;
   subscriptionPlanName: string;
-  subscriptionExpirationDate: {
-    _seconds: number;
-    _nanoseconds: number;
-  };
+  subscriptionExpirationDate: FirebaseTimestamp;
 }
 
 const SubscriptionManager: React.FC = () => {
@@ -78,18 +77,6 @@ const SubscriptionManager: React.FC = () => {
       console.error("Error during subscription process:", err);
       setError("Subscription process failed. Please try again.");
     }
-  };
-
-  const formatFirestoreTimestamp = (
-    timestamp: Subscription["subscriptionExpirationDate"]
-  ): string => {
-    if (!timestamp) return "N/A";
-
-    if (timestamp._seconds && timestamp._nanoseconds) {
-      return new Date(timestamp._seconds * 1000).toLocaleDateString();
-    }
-
-    return new Date(timestamp._seconds * 1000).toLocaleDateString();
   };
 
   if (loading) {

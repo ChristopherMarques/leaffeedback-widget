@@ -1,4 +1,4 @@
-import { UserCredential, UserInfo } from "firebase/auth";
+import { UserInfo } from "firebase/auth";
 
 export interface Feedback {
   id: string;
@@ -6,13 +6,11 @@ export interface Feedback {
   email?: string;
   userId: string;
   projectId: string;
-  createdAt: Date;
+  createdAt: FirebaseTimestamp | Date;
 }
 
 export interface FeedbackListProps {
-  feedbacks: Feedback[];
-  onSelectFeedback: (feedback: Feedback) => void;
-  loading?: boolean;
+  onSelectFeedback: (feedback: Feedback | null) => void;
 }
 
 export interface FeedbackDetailsProps {
@@ -33,6 +31,11 @@ export type Position =
 export interface Config extends WidgetConfig {
   projectId: string;
 }
+
+export type FirebaseTimestamp = {
+  _seconds: number;
+  _nanoseconds: number;
+};
 
 export interface WidgetConfig {
   widgetId: string;

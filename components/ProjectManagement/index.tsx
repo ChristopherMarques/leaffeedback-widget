@@ -53,7 +53,7 @@ export default function ProjectManagement({
           </SelectTrigger>
           <SelectContent>
             {projects.map((project) => (
-              <SelectItem key={project.id} value={project.name}>
+              <SelectItem key={project.id} value={project.id}>
                 {project.name}
               </SelectItem>
             ))}

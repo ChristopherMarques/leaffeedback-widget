@@ -3,7 +3,7 @@ import { Project, WidgetConfig, User } from "@/lib/types";
 import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { generateEmbedCode } from "@/lib/utils";
-import { createProject, updateProject } from "@/lib/api";
+import { createProject, createWidget, updateProject } from "@/lib/api";
 
 export function useProjectsAndWidgetConfig() {
   const [widgetConfig, setWidgetConfig] = useState<WidgetConfig>({
@@ -11,6 +11,7 @@ export function useProjectsAndWidgetConfig() {
     primaryColor: "#686B59",
     secondaryColor: "#ffffff",
     companyName: "My Company",
+    buttonAnimation: "",
     widgetId: crypto.randomUUID(),
     projectId: "",
   });
@@ -27,7 +28,7 @@ export function useProjectsAndWidgetConfig() {
   useEffect(() => {
     if (selectedProjectId) {
       const selectedProject = projects.find(
-        (project) => project.name === selectedProjectId
+        (project) => project.id === selectedProjectId
       );
       if (selectedProject?.widgetId) {
         fetchWidgetConfig(selectedProject.widgetId);
@@ -61,11 +62,7 @@ export function useProjectsAndWidgetConfig() {
   const fetchWidgetConfig = async (widgetId: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/widget?id=${widgetId}`, {
-        headers: {
-          Authorization: `Bearer ${user?.accessToken}`,
-        },
-      });
+      const response = await fetch(`/api/widget?widgetId=${widgetId}`);
       if (!response.ok) {
         throw new Error("Failed to fetch widget configuration");
       }
@@ -89,6 +86,7 @@ export function useProjectsAndWidgetConfig() {
       primaryColor: "#686B59",
       secondaryColor: "#ffffff",
       companyName: "My Company",
+      buttonAnimation: "",
       widgetId: crypto.randomUUID(),
       projectId: projectId || "",
     });
@@ -102,7 +100,7 @@ export function useProjectsAndWidgetConfig() {
         user?.id as string
       );
       setProjects((prevProjects) => [...prevProjects, newProject]);
-      setSelectedProjectId(newProject.name);
+      setSelectedProjectId(newProject.id);
       toast({
         title: "Success",
         description: "Project created successfully!",
@@ -123,8 +121,9 @@ export function useProjectsAndWidgetConfig() {
     setIsLoading(true);
     try {
       const embedCode = generateEmbedCode(widgetConfig);
+      const widget = await createWidget(widgetConfig);
       const updatedProject = await updateProject(selectedProjectId, {
-        widgetId: widgetConfig.widgetId,
+        widgetId: widget.widgetId,
         widgetConfig,
       });
       setProjects((prevProjects) =>

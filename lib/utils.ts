@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Config } from "./types";
+import { Config, FirebaseTimestamp } from "./types";
 import { NextRouter } from "next/router";
 import { useRouter } from "next/router";
 
@@ -21,4 +21,16 @@ export const generateEmbedCode = (config: Config): string => {
   )});
 </script>
 <!-- End Feedback Widget -->`.trim();
+};
+
+export const formatFirestoreTimestamp = (
+  timestamp: FirebaseTimestamp
+): string => {
+  if (!timestamp) return "N/A";
+
+  if (timestamp._seconds && timestamp._nanoseconds) {
+    return new Date(timestamp._seconds * 1000).toLocaleDateString();
+  }
+
+  return new Date(timestamp._seconds * 1000).toLocaleDateString();
 };

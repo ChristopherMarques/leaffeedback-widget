@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import SubscriptionManager from "@/components/SubscriptionManager";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/auth-context";
+import { Feedback } from "@/lib/types";
 
 function DashboardContent(): JSX.Element {
   const searchParams = useSearchParams();
@@ -16,6 +17,7 @@ function DashboardContent(): JSX.Element {
     searchParams.get("tab") || "dashboard"
   );
   const { user, loading } = useAuth();
+
   const router = useRouter();
 
   useEffect(() => {
@@ -38,14 +40,14 @@ function DashboardContent(): JSX.Element {
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container  mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Feedback Dashboard</h1>
       <Tabs
         value={activeTab}
         onValueChange={handleTabChange}
         className="space-y-4"
       >
-        <TabsList>
+        <TabsList className="border-primary">
           <TabsTrigger value="dashboard" className="flex items-center">
             <LayoutDashboard className="mr-2 h-4 w-4" />
             Dashboard

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/firebaseAdmin";
-import { getAuth } from "firebase-admin/auth";
 import { Feedback } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
@@ -33,11 +32,34 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   const projectId = request.nextUrl.searchParams.get("projectId");
-  if (!projectId) {
+  const userId = request.nextUrl.searchParams.get("userId");
+  if (!projectId && !userId) {
     return NextResponse.json(
-      { error: "ProjectId is required" },
+      { error: "ProjectId or userId are required" },
       { status: 400 }
     );
+  }
+
+  if (userId) {
+    try {
+      const feedbacksSnapshot = await db
+        .collection("feedbacks")
+        .orderBy("createdAt", "desc")
+        .get();
+
+      return NextResponse.json(
+        feedbacksSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching feedbacks:", error);
+      return NextResponse.json(
+        { error: "Failed to fetch feedbacks" },
+        { status: 500 }
+      );
+    }
   }
 
   try {
@@ -46,12 +68,20 @@ export async function GET(request: NextRequest) {
       .where("projectId", "==", projectId)
       .orderBy("createdAt", "desc")
       .get();
-    const feedbacks = feedbacksSnapshot.docs.map((doc) => doc.data());
+
+    console.log(`Found ${feedbacksSnapshot.size} feedbacks`);
+
+    const feedbacks = feedbacksSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
     return NextResponse.json(feedbacks);
   } catch (error) {
+    console.error("Error fetching feedbacks:", error);
     return NextResponse.json(
       { error: "Failed to fetch feedbacks" },
-      { status: 400 }
+      { status: 500 }
     );
   }
 }

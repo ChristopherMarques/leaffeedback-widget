@@ -17,44 +17,20 @@ export default function Dashboard(): JSX.Element {
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(
     null
   );
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [proFeatures, setProFeatures] = useState({
     aiAnalytics: false,
     reportGenerator: false,
   });
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [loadingFeedbacks, setLoadingFeedbacks] = useState<boolean>(false);
 
   const { user } = useAuth();
-
-  useEffect(() => {
-    fetchFeedbacks();
-    fetchUserData();
-  }, []);
-
-  const fetchFeedbacks = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/feedback", {
-        headers: {
-          Authorization: `Bearer ${user?.accessToken}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setFeedbacks(data);
-      } else {
-        console.error("Failed to fetch feedbacks");
-      }
-    } catch (error) {
-      console.error("Error fetching feedbacks:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const fetchUserData = async () => {
     if (user) {
       try {
+        setLoading(true);
         if (user.subscriptionPlan) {
           const hasPro = hasAccess(
             user,
@@ -67,11 +43,31 @@ export default function Dashboard(): JSX.Element {
         } else {
           console.error("Failed to fetch user data");
         }
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
     }
   };
+
+  const fetchFeedbacks = async () => {
+    setLoadingFeedbacks(true);
+    if (!user) {
+      return;
+    }
+    const response = await fetch(`/api/feedback?userId=${user?.id}`).finally(
+      () => {
+        setLoadingFeedbacks(false);
+      }
+    );
+    const data = await response.json();
+    setFeedbacks(data);
+  };
+
+  useEffect(() => {
+    fetchUserData();
+    fetchFeedbacks();
+  }, [user]);
 
   const renderSkeletons = () => (
     <>
@@ -95,11 +91,7 @@ export default function Dashboard(): JSX.Element {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FeedbackList
-            feedbacks={feedbacks}
-            onSelectFeedback={setSelectedFeedback}
-            loading={loading}
-          />
+          <FeedbackList onSelectFeedback={setSelectedFeedback} />
           <FeedbackDetails feedback={selectedFeedback} />
 
           <ProFeatureOverlay hasPro={proFeatures.aiAnalytics}>
@@ -107,7 +99,10 @@ export default function Dashboard(): JSX.Element {
           </ProFeatureOverlay>
 
           <div className="space-y-6">
-            <FeedbackOverview feedbacks={feedbacks} loading={loading} />
+            <FeedbackOverview
+              feedbacks={feedbacks}
+              loading={loadingFeedbacks}
+            />
             <ProFeatureOverlay hasPro={proFeatures.reportGenerator}>
               <ReportGenerator />
             </ProFeatureOverlay>
