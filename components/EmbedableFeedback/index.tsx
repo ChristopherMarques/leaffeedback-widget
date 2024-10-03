@@ -9,6 +9,7 @@ import { createRoot } from "react-dom/client";
 import "../../public/dist/output.css";
 import { useToast } from "@/hooks/use-toast";
 import { WidgetConfig } from "@/lib/types";
+import { Toaster } from "../ui/toaster";
 
 if (typeof window !== "undefined") {
   (window as any).initializeFeedbackWidget = (
@@ -83,6 +84,7 @@ export default function EmbeddableFeedback({
   return (
     <>
       <div className={`fixed ${positionClasses[position]} z-50`}>
+        <Toaster />
         {!isOpen && (
           <Button
             onClick={() => setIsOpen(true)}

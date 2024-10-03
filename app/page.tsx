@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "@/lib/firebaseConfig";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -16,16 +16,14 @@ export default function Home() {
 
   const handleSignIn = async () => {
     const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider).finally(() => {
+      router.push("/dashboard");
+    });
     const user: Partial<User> | null = result.user
       ? (result.user as Partial<User>)
       : null;
 
     setCookie("token", user?.accessToken || "");
-
-    if (user) {
-      router.push("/dashboard");
-    }
   };
 
   return (

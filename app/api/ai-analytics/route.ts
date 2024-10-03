@@ -1,19 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/firebaseAdmin";
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  organization: process.env.OPENAI_ORGANIZATION,
-});
-
-console.log(openai);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(request: NextRequest) {
   try {
     const { projectId } = await request.json();
 
-    // Fetch feedbacks for the project
     const feedbacksSnapshot = await db
       .collection("feedbacks")
       .where("projectId", "==", projectId)
@@ -24,46 +18,61 @@ export async function POST(request: NextRequest) {
     let analysis;
 
     try {
-      // Generate AI analysis
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
       const prompt = `Analyze the following user feedbacks and provide insights:
 1. What percentage of feedbacks are positive?
-2. What is the top feature mentioned?
-3. What is the main concern or issue mentioned?
+2. What percentage of feedbacks are negative?
+3. What is the top feature mentioned?
+4. What is the main concern or issue mentioned?
+5. What is the main suggestion for improvement mentioned?
+6. How can the product team improve the product based on the feedbacks?
 
 Feedbacks:
 ${feedbacks.join("\n")}
 
-Provide the analysis in the following JSON format:
+Provide the analysis in the following JSON format, without any markdown formatting or additional text:
 {
   "positiveFeedbackPercentage": number,
+  "negativeFeedbackPercentage": number,
   "topFeature": "string",
-  "mainConcern": "string"
+  "mainConcern": "string",
+  "mainSuggestion": "string",
+  "productImprovementSuggestion": "string"
 }`;
 
-      const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: prompt }],
-      });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      let text = response.text();
 
-      analysis = JSON.parse(completion.choices[0].message?.content || "{}");
-    } catch (openaiError) {
-      console.error("OpenAI API error:", openaiError);
+      text = text.replace(/```json\n?|\n?```/g, "").trim();
 
-      // Fallback to a simple analysis
+      try {
+        analysis = JSON.parse(text);
+      } catch (jsonError) {
+        console.error("JSON parsing error:", jsonError);
+        throw new Error("Invalid JSON response from Gemini");
+      }
+    } catch (geminiError) {
+      console.error("Gemini API error:", geminiError);
+
       analysis = {
         positiveFeedbackPercentage:
           calculatePositiveFeedbackPercentage(feedbacks),
         topFeature: "Unable to determine due to API limitations",
         mainConcern: "Unable to determine due to API limitations",
+        mainSuggestion: "Unable to determine due to API limitations",
+        productImprovementSuggestion:
+          "Unable to determine due to API limitations",
       };
     }
 
-    // Save the analysis to the database
     await db
       .collection("aiAnalytics")
       .doc(projectId)
       .set({
         ...analysis,
+        projectId,
         createdAt: new Date(),
       });
 
@@ -106,14 +115,16 @@ export async function GET(request: NextRequest) {
 
     const analyticsDoc = await db
       .collection("aiAnalytics")
-      .doc(projectId)
+      .where("projectId", "==", projectId)
+      .orderBy("createdAt", "desc")
+      .limit(1)
       .get();
 
-    if (!analyticsDoc.exists) {
+    if (analyticsDoc.empty) {
       return NextResponse.json(null);
     }
 
-    return NextResponse.json(analyticsDoc.data());
+    return NextResponse.json(analyticsDoc.docs[0].data());
   } catch (error) {
     console.error("Error fetching AI analytics:", error);
     return NextResponse.json(

@@ -9,7 +9,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import SubscriptionManager from "@/components/SubscriptionManager";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/auth-context";
-import { Feedback } from "@/lib/types";
 
 function DashboardContent(): JSX.Element {
   const searchParams = useSearchParams();

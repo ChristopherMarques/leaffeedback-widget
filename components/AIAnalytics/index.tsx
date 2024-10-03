@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -6,16 +6,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ThumbsUp, Star, ThumbsDown } from "lucide-react";
+import { ThumbsUp, Star, ThumbsDown, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { generateAIAnalytics, getAIAnalytics } from "@/lib/api";
+import { Textarea } from "../ui/textarea";
 
 interface AIAnalyticsProps {
   projectId: string;
 }
 
-export default function AIAnalytics({ projectId }: AIAnalyticsProps): JSX.Element {
+export default function AIAnalytics({
+  projectId,
+}: AIAnalyticsProps): JSX.Element {
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -41,23 +44,34 @@ export default function AIAnalytics({ projectId }: AIAnalyticsProps): JSX.Elemen
     }
   };
 
-  React.useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        const existingAnalytics = await getAIAnalytics(projectId);
-        if (existingAnalytics) {
-          setAnalytics(existingAnalytics);
-        }
-      } catch (error) {
-        console.error("Error fetching analytics:", error);
+  const fetchAnalytics = async () => {
+    if (!projectId) return;
+    setLoading(true);
+    try {
+      const existingAnalytics = await getAIAnalytics(projectId);
+      if (existingAnalytics) {
+        setAnalytics(existingAnalytics);
+      } else {
+        setAnalytics(null);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch analytics. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchAnalytics();
   }, [projectId]);
 
   return (
-    <Card className="h-full">
+    <Card className="h-full pb-10">
       <CardHeader>
         <CardTitle>AI-Generated Analytics</CardTitle>
         <CardDescription>Insights based on feedback analysis</CardDescription>
@@ -67,7 +81,9 @@ export default function AIAnalytics({ projectId }: AIAnalyticsProps): JSX.Elemen
           <ul className="space-y-2">
             <li className="flex items-center">
               <ThumbsUp className="mr-2 h-4 w-4 text-green-500" />
-              <span>{analytics.positiveFeedbackPercentage}% positive feedbacks</span>
+              <span>
+                {analytics.positiveFeedbackPercentage}% positive feedbacks
+              </span>
             </li>
             <li className="flex items-center">
               <Star className="mr-2 h-4 w-4 text-yellow-500" />
@@ -77,14 +93,25 @@ export default function AIAnalytics({ projectId }: AIAnalyticsProps): JSX.Elemen
               <ThumbsDown className="mr-2 h-4 w-4 text-red-500" />
               <span>Main concern: {analytics.mainConcern}</span>
             </li>
+            <li className="flex items-center">
+              <MessageSquare className="mr-2 h-4 w-4 text-primary" />
+              <span>Main suggestion: {analytics.mainSuggestion}</span>
+            </li>
+            <li className="flex flex-col gap-2 mt-4 items-start justify-center w-full">
+              <span>Product improvement suggestion: </span>
+              <Textarea
+                value={analytics.productImprovementSuggestion}
+                className="w-full h-32 resize-none overflow-y-auto"
+              />
+            </li>
           </ul>
         ) : (
           <p>No analytics available. Generate them to see insights.</p>
         )}
         <Button
           onClick={handleGenerateAnalytics}
-          disabled={loading}
-          className="mt-4"
+          disabled={loading || !projectId}
+          className="mt-4 float-end"
         >
           {loading ? "Generating..." : "Generate AI Analytics"}
         </Button>
