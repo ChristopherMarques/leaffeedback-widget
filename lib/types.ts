@@ -5,6 +5,9 @@ export interface Feedback {
   content: string;
   email?: string;
   userId: string;
+  widgetId: string;
+  type: string;
+  screenshot: string;
   projectId: string;
   createdAt: FirebaseTimestamp | Date;
 }
@@ -44,11 +47,14 @@ export interface WidgetConfig {
   position: Position;
   primaryColor: string;
   secondaryColor: string;
+  backgroundColor: string;
   companyName: string;
   projectId: string;
   buttonText?: string;
   buttonIcon?: string;
   buttonAnimation?: string;
+  type?: "idea" | "issue" | "feedback";
+  screenshot?: string | null;
 }
 
 export interface Project {

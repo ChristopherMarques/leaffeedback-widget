@@ -6,7 +6,7 @@ const __dirname = path.dirname(__filename);
 
 export default {
   mode: "production",
-  entry: "./components/EmbedableFeedback/index.tsx",
+  entry: "./components/FeedbackWidget/EmbedableFeedback/index.tsx",
   output: {
     path: path.resolve(__dirname, "public/dist"),
     filename: "feedback-widget-umd.js",

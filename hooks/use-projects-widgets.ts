@@ -4,12 +4,19 @@ import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { generateEmbedCode } from "@/lib/utils";
 import { createProject, createWidget, updateProject } from "@/lib/api";
+import {
+  getStorage,
+  ref,
+  uploadString,
+  getDownloadURL,
+} from "firebase/storage";
 
 export function useProjectsAndWidgetConfig() {
   const [widgetConfig, setWidgetConfig] = useState<WidgetConfig>({
     position: "bottom-right",
     primaryColor: "#686B59",
     secondaryColor: "#ffffff",
+    backgroundColor: "#ffffff",
     companyName: "My Company",
     buttonAnimation: "",
     widgetId: crypto.randomUUID(),
@@ -85,6 +92,7 @@ export function useProjectsAndWidgetConfig() {
       position: "bottom-right",
       primaryColor: "#686B59",
       secondaryColor: "#ffffff",
+      backgroundColor: "#f0f0f0",
       companyName: "My Company",
       buttonAnimation: "",
       widgetId: crypto.randomUUID(),
@@ -145,6 +153,27 @@ export function useProjectsAndWidgetConfig() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const uploadScreenshot = async (screenshot: string) => {
+    if (!screenshot) return null;
+
+    const storage = getStorage();
+    const storageRef = ref(storage, `screenshots/${Date.now()}.png`);
+
+    try {
+      const snapshot = await uploadString(
+        storageRef,
+        screenshot.split(",")[1],
+        "base64",
+        { contentType: "image/png" }
+      );
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      return downloadURL;
+    } catch (error) {
+      console.error("Error uploading screenshot:", error);
+      return null;
     }
   };
 

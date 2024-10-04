@@ -45,6 +45,12 @@ export default function WidgetConfiguration({
               value={widgetConfig.secondaryColor}
               onChange={(value) => onConfigChange("secondaryColor", value)}
             />
+            <ConfigInput
+              label="Background Color"
+              type="color"
+              value={widgetConfig.backgroundColor}
+              onChange={(value) => onConfigChange("backgroundColor", value)}
+            />
             <PositionRadioGroup
               value={widgetConfig.position}
               onChange={(value) => onConfigChange("position", value)}

@@ -6,7 +6,7 @@ import { generateEmbedCode } from "@/lib/utils";
 import { Config } from "@/lib/types";
 
 const DynamicEmbeddableFeedback = dynamic(
-  () => import("@/components/EmbedableFeedback"),
+  () => import("@/components/FeedbackWidget/EmbedableFeedback"),
   { ssr: false }
 );
 

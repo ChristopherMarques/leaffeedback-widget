@@ -9,7 +9,7 @@ import { User } from "@/lib/types";
 import { setCookie } from "cookies-next";
 import { useAuth } from "@/contexts/auth-context";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { Loader } from "@/components/Global";
 
 export default function Home() {
   const router = useRouter();
@@ -33,11 +33,7 @@ export default function Home() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
-    );
+    return <Loader />;
   }
 
   return (
