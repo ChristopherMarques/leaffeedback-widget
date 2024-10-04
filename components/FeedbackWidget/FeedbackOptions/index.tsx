@@ -26,11 +26,11 @@ export function FeedbackOptions({
 
   return (
     <TooltipProvider>
-      <div className="flex flex-row gap-4 w-full">
+      <div className="flex flex-row gap-4 w-full items-center justify-center">
         {options.map(({ option, icon: Icon, label }) => (
           <Card
             key={option}
-            className="cursor-pointer hover:scale-105 flex-1"
+            className="cursor-pointer hover:scale-105 flex-1 p-4"
             style={{
               borderColor: widgetConfig.primaryColor,
               borderWidth: "1px",
