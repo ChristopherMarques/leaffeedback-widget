@@ -9,7 +9,7 @@ import { User } from "@/lib/types";
 import { setCookie } from "cookies-next";
 import { useAuth } from "@/contexts/auth-context";
 import Link from "next/link";
-import { Loader } from "@/components/Global";
+import Loader from "@/components/Global/Loader";
 
 export default function Home() {
   const router = useRouter();

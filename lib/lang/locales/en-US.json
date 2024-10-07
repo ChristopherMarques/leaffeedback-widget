@@ -1,0 +1,60 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "selectLanguage": "Select Language"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "projectManagement": "Project Management",
+    "newProjectName": "New project name",
+    "createProject": "Create Project",
+    "selectProject": "Select a project",
+    "feedbackDashboard": "Feedback Dashboard",
+    "widgetConfig": "Widget Config",
+    "managePlan": "Manage Plan"
+  },
+  "feedback": {
+    "list": "Feedback List",
+    "details": "Feedback Details",
+    "overview": "Feedback Overview",
+    "type": "Type",
+    "content": "Content",
+    "email": "Email",
+    "createdAt": "Created At"
+  },
+  "widget": {
+    "configuration": "Widget Configuration",
+    "position": "Position",
+    "primaryColor": "Primary Color",
+    "secondaryColor": "Secondary Color",
+    "backgroundColor": "Background Color",
+    "companyName": "Company Name",
+    "generateEmbedCode": "Generate Embed Code"
+  },
+  "proFeatures": {
+    "title": "Pro Features",
+    "buttonText": "Button Text",
+    "buttonIcon": "Button Icon",
+    "buttonAnimation": "Button Animation"
+  },
+  "aiAnalytics": {
+    "title": "AI Analytics",
+    "generate": "Generate Analysis",
+    "loading": "Generating analysis...",
+    "noData": "No data available for analysis",
+    "success": "Analysis generated successfully",
+    "successDescription": "The analysis is ready to be viewed.",
+    "error": "Error generating analysis",
+    "positiveFeedback": "Positive Feedback",
+    "topFeature": "Top Feature",
+    "mainConcern": "Main Concern",
+    "mainSuggestion": "Main Suggestion",
+    "productImprovementSuggestion": "Product Improvement Suggestion"
+  },
+  "reportGenerator": {
+    "title": "Report Generator",
+    "generate": "Generate Report"
+  }
+}

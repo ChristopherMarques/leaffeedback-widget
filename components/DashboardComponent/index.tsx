@@ -12,6 +12,7 @@ import { hasAccess } from "@/lib/subscriptionUtils";
 import ProFeatureOverlay from "../ProFeatureOverlay";
 import { useAuth } from "@/contexts/auth-context";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
 
 export default function Dashboard(): JSX.Element {
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(
@@ -83,6 +84,8 @@ export default function Dashboard(): JSX.Element {
       </div>
     </>
   );
+
+  const t = useTranslations();
 
   return (
     <TabsContent value="dashboard">

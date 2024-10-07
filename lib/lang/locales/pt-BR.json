@@ -1,0 +1,60 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "selectLanguage": "Selecione o Idioma"
+  },
+  "dashboard": {
+    "title": "Painel",
+    "projectManagement": "Gerenciamento de Projetos",
+    "newProjectName": "Nome do novo projeto",
+    "createProject": "Criar Projeto",
+    "selectProject": "Selecione um projeto",
+    "feedbackDashboard": "Painel de Feedback",
+    "widgetConfig": "Configuração do Widget",
+    "managePlan": "Gerenciar Plano"
+  },
+  "feedback": {
+    "list": "Lista de Feedbacks",
+    "details": "Detalhes do Feedback",
+    "overview": "Visão Geral do Feedback",
+    "type": "Tipo",
+    "content": "Conteúdo",
+    "email": "E-mail",
+    "createdAt": "Criado em"
+  },
+  "widget": {
+    "configuration": "Configuração do Widget",
+    "position": "Posição",
+    "primaryColor": "Cor Primária",
+    "secondaryColor": "Cor Secundária",
+    "backgroundColor": "Cor de Fundo",
+    "companyName": "Nome da Empresa",
+    "generateEmbedCode": "Gerar Código de Incorporação"
+  },
+  "proFeatures": {
+    "title": "Recursos Pro",
+    "buttonText": "Texto do Botão",
+    "buttonIcon": "Ícone do Botão",
+    "buttonAnimation": "Animação do Botão"
+  },
+  "aiAnalytics": {
+    "title": "Análise de IA",
+    "generate": "Gerar Análise",
+    "loading": "Gerando análise...",
+    "noData": "Nenhum dado disponível para análise",
+    "success": "Análise gerada com sucesso",
+    "successDescription": "A análise está pronta para ser visualizada.",
+    "error": "Erro ao gerar análise",
+    "positiveFeedback": "Feedback Positivo",
+    "topFeature": "Característica Principal",
+    "mainConcern": "Problema Principal",
+    "mainSuggestion": "Sugestão Principal",
+    "productImprovementSuggestion": "Sugestão de Melhoria do Produto"
+  },
+  "reportGenerator": {
+    "title": "Gerador de Relatórios",
+    "generate": "Gerar Relatório"
+  }
+}

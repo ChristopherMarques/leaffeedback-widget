@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { formatFirestoreTimestamp } from "@/lib/utils";
+import { useTranslations } from 'next-intl';
 
 export default function FeedbackList({
   onSelectFeedback,
@@ -26,6 +27,7 @@ export default function FeedbackList({
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const { user } = useAuth();
+  const t = useTranslations();
 
   const fetchFeedbacks = async () => {
     try {
@@ -74,7 +76,7 @@ export default function FeedbackList({
   return (
     <Card>
       <CardHeader className="flex-row justify-between items-center space-y-0">
-        <CardTitle className="w-full">Recent Feedbacks</CardTitle>
+        <CardTitle className="w-full">{t('feedback.list')}</CardTitle>
         <div className="w-1/2">
           <Select onValueChange={handleProjectChange}>
             <SelectTrigger className="border-primary">

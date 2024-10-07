@@ -1,5 +1,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import html2canvas from "html2canvas";
+import { Button } from "@/components/ui/button";
+import { Camera } from "lucide-react";
 
 interface ScreenshotCaptureProps {
   onScreenshotCapture: (screenshot: string) => void;
@@ -82,7 +84,9 @@ export default function ScreenshotCapture({
 
   return (
     <>
-      <button onClick={captureScreenshot}>Capture Screenshot</button>
+      <Button variant="outline" onClick={captureScreenshot}>
+        <Camera className="w-4 h-4 text-primary" />
+      </Button>
       {screenshotArea && (
         <div
           ref={screenshotRef}

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Project } from "@/lib/types";
+import { useTranslations } from "next-intl";
 
 interface ProjectManagementProps {
   projects: Project[];
@@ -33,23 +34,27 @@ export default function ProjectManagement({
     setNewProjectName("");
   };
 
+  const t = useTranslations();
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Project Management</CardTitle>
+        <CardTitle>{t("dashboard.projectManagement")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center space-x-2">
           <Input
-            placeholder="New project name"
+            placeholder={t("dashboard.newProjectName")}
             value={newProjectName}
             onChange={(e) => setNewProjectName(e.target.value)}
           />
-          <Button onClick={handleCreateProject}>Create Project</Button>
+          <Button onClick={handleCreateProject}>
+            {t("dashboard.createProject")}
+          </Button>
         </div>
         <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
           <SelectTrigger>
-            <SelectValue placeholder="Select a project" />
+            <SelectValue placeholder={t("dashboard.selectProject")} />
           </SelectTrigger>
           <SelectContent>
             {projects.map((project) => (

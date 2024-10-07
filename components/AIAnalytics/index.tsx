@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { generateAIAnalytics, getAIAnalytics } from "@/lib/api";
 import { Textarea } from "../ui/textarea";
+import { useTranslations } from "next-intl";
 
 interface AIAnalyticsProps {
   projectId: string;
@@ -22,6 +23,7 @@ export default function AIAnalytics({
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const t = useTranslations();
 
   const handleGenerateAnalytics = async () => {
     setLoading(true);
@@ -29,14 +31,14 @@ export default function AIAnalytics({
       const generatedAnalytics = await generateAIAnalytics(projectId);
       setAnalytics(generatedAnalytics);
       toast({
-        title: "Analytics generated successfully",
-        description: "Your project's feedback has been analyzed.",
+        title: t("aiAnalytics.success"),
+        description: t("aiAnalytics.successDescription"),
       });
     } catch (error) {
       console.error("Error generating analytics:", error);
       toast({
         title: "Error",
-        description: "Failed to generate analytics. Please try again.",
+        description: t("aiAnalytics.error"),
         variant: "destructive",
       });
     } finally {
@@ -58,7 +60,7 @@ export default function AIAnalytics({
       console.error("Error fetching analytics:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch analytics. Please try again.",
+        description: t("aiAnalytics.error"),
         variant: "destructive",
       });
     } finally {
@@ -73,8 +75,10 @@ export default function AIAnalytics({
   return (
     <Card className="h-full pb-10">
       <CardHeader>
-        <CardTitle>AI-Generated Analytics</CardTitle>
-        <CardDescription>Insights based on feedback analysis</CardDescription>
+        <CardTitle>{t("aiAnalytics.title")}</CardTitle>
+        <CardDescription>
+          {loading ? t("aiAnalytics.loading") : t("aiAnalytics.noData")}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {analytics ? (
@@ -82,23 +86,30 @@ export default function AIAnalytics({
             <li className="flex items-center">
               <ThumbsUp className="mr-2 h-4 w-4 text-green-500" />
               <span>
-                {analytics.positiveFeedbackPercentage}% positive feedbacks
+                {analytics.positiveFeedbackPercentage}%{" "}
+                {t("aiAnalytics.positiveFeedback")}
               </span>
             </li>
             <li className="flex items-center">
               <Star className="mr-2 h-4 w-4 text-yellow-500" />
-              <span>Top feature: {analytics.topFeature}</span>
+              <span>
+                {t("aiAnalytics.topFeature")}: {analytics.topFeature}
+              </span>
             </li>
             <li className="flex items-center">
               <ThumbsDown className="mr-2 h-4 w-4 text-red-500" />
-              <span>Main concern: {analytics.mainConcern}</span>
+              <span>
+                {t("aiAnalytics.mainConcern")}: {analytics.mainConcern}
+              </span>
             </li>
             <li className="flex items-center">
               <MessageSquare className="mr-2 h-4 w-4 text-primary" />
-              <span>Main suggestion: {analytics.mainSuggestion}</span>
+              <span>
+                {t("aiAnalytics.mainSuggestion")}: {analytics.mainSuggestion}
+              </span>
             </li>
             <li className="flex flex-col gap-2 mt-4 items-start justify-center w-full">
-              <span>Product improvement suggestion: </span>
+              <span>{t("aiAnalytics.productImprovementSuggestion")}: </span>
               <Textarea
                 value={analytics.productImprovementSuggestion}
                 className="w-full h-32 resize-none overflow-y-auto"
@@ -106,14 +117,14 @@ export default function AIAnalytics({
             </li>
           </ul>
         ) : (
-          <p>No analytics available. Generate them to see insights.</p>
+          <p>{t("aiAnalytics.noData")}</p>
         )}
         <Button
           onClick={handleGenerateAnalytics}
           disabled={loading || !projectId}
           className="mt-4 float-end"
         >
-          {loading ? "Generating..." : "Generate AI Analytics"}
+          {loading ? t("aiAnalytics.loading") : t("aiAnalytics.generate")}
         </Button>
       </CardContent>
     </Card>
