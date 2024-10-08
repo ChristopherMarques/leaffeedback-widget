@@ -84,7 +84,7 @@ export default function ScreenshotCapture({
 
   return (
     <>
-      <Button variant="outline" onClick={captureScreenshot}>
+      <Button variant="outline" size="icon" onClick={captureScreenshot}>
         <Camera className="w-4 h-4 text-primary" />
       </Button>
       {screenshotArea && (

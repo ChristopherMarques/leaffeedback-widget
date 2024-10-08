@@ -18,8 +18,6 @@ export default async function RootLayout({
   const messages = await getMessages();
   const locale = await getLocale();
 
-  console.log(locale);
-
   return (
     <AuthProvider>
       <html lang={locale}>

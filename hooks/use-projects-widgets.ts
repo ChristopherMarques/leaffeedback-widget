@@ -14,7 +14,7 @@ import {
 export function useProjectsAndWidgetConfig() {
   const [widgetConfig, setWidgetConfig] = useState<WidgetConfig>({
     position: "bottom-right",
-    primaryColor: "#686B59",
+    primaryColor: "#669999",
     secondaryColor: "#ffffff",
     backgroundColor: "#ffffff",
     companyName: "My Company",

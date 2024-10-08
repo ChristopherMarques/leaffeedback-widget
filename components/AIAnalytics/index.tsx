@@ -112,7 +112,7 @@ export default function AIAnalytics({
               <span>{t("aiAnalytics.productImprovementSuggestion")}: </span>
               <Textarea
                 value={analytics.productImprovementSuggestion}
-                className="w-full h-32 resize-none overflow-y-auto"
+                className="w-full h-32 resize-none overflow-y-auto border-primary"
               />
             </li>
           </ul>

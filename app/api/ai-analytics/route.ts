@@ -21,25 +21,25 @@ export async function POST(request: NextRequest) {
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
       const prompt = `Analyze the following user feedbacks and provide insights:
-1. What percentage of feedbacks are positive?
-2. What percentage of feedbacks are negative?
-3. What is the top feature mentioned?
-4. What is the main concern or issue mentioned?
-5. What is the main suggestion for improvement mentioned?
-6. How can the product team improve the product based on the feedbacks?
+                      1. What percentage of feedbacks are positive?
+                      2. What percentage of feedbacks are negative?
+                      3. What is the top feature mentioned?
+                      4. What is the main concern or issue mentioned?
+                      5. What is the main suggestion for improvement mentioned?
+                      6. How can the product team improve the product based on the feedbacks?
 
-Feedbacks:
-${feedbacks.join("\n")}
+                      Feedbacks:
+                      ${feedbacks.join("\n")}
 
-Provide the analysis in the following JSON format, without any markdown formatting or additional text:
-{
-  "positiveFeedbackPercentage": number,
-  "negativeFeedbackPercentage": number,
-  "topFeature": "string",
-  "mainConcern": "string",
-  "mainSuggestion": "string",
-  "productImprovementSuggestion": "string"
-}`;
+                      Provide the analysis in the following JSON format, without any markdown formatting or additional text:
+                      {
+                        "positiveFeedbackPercentage": number,
+                        "negativeFeedbackPercentage": number,
+                        "topFeature": "string",
+                        "mainConcern": "string",
+                        "mainSuggestion": "string",
+                        "productImprovementSuggestion": "string"
+                      }`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
