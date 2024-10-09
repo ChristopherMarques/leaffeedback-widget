@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "build:widget": "next build && webpack --config webpack.config.js",
-    "build:css": "postcss app/globals.css -o public/dist/output.css --minify"
+    "build:css": "postcss app/globals.css -o public/dist/output.css --minify",
+    "postinstall": "yarn build:css && yarn build:widget"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
