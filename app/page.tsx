@@ -5,11 +5,10 @@ import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "@/lib/firebaseConfig";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { User } from "@/lib/types";
-import { setCookie } from "cookies-next";
+import { User as FirebaseUser } from "@firebase/auth";
 import { useAuth } from "@/contexts/auth-context";
 import Link from "next/link";
-import { Loader } from "@/components/Global";
+import Loader from "@/components/Global/Loader";
 
 export default function Home() {
   const router = useRouter();
@@ -19,13 +18,12 @@ export default function Home() {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-      const user: Partial<User> | null = result.user as Partial<User> | null;
+      const firebaseUser = result.user as FirebaseUser;
 
-      if (user?.accessToken) {
-        setCookie("token", user.accessToken);
+      if (firebaseUser) {
         router.push("/dashboard");
       } else {
-        console.error("Failed to get access token");
+        console.error("Failed to sign in");
       }
     } catch (error) {
       console.error("Sign-in error:", error);

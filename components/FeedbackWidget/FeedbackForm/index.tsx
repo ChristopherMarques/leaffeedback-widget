@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import ScreenshotCapture from "../../ScreenshotCapture";
+import ScreenshotCapture from "../ScreenshotCapture";
 import { WidgetConfig } from "@/lib/types";
 
 interface FeedbackFormProps {
@@ -44,22 +44,24 @@ export function FeedbackForm({
           backgroundColor: widgetConfig.secondaryColor,
         }}
       />
-      <Input
-        type="email"
-        placeholder="Your email (optional)"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="w-full"
-        style={{
-          borderColor: widgetConfig.primaryColor,
-          borderWidth: "1px",
-          color: widgetConfig.primaryColor,
-          backgroundColor: widgetConfig.secondaryColor,
-        }}
-      />
-      {selectedOption === "issue" && (
-        <ScreenshotCapture onScreenshotCapture={setScreenshot} />
-      )}
+      <div className="flex items-center justify-between gap-2">
+        <Input
+          type="email"
+          placeholder="Your email (optional)"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full"
+          style={{
+            borderColor: widgetConfig.primaryColor,
+            borderWidth: "1px",
+            color: widgetConfig.primaryColor,
+            backgroundColor: widgetConfig.secondaryColor,
+          }}
+        />
+        {selectedOption === "issue" && (
+          <ScreenshotCapture onScreenshotCapture={setScreenshot} />
+        )}
+      </div>
       <Button
         type="submit"
         style={{

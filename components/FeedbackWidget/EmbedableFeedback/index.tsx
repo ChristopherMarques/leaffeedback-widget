@@ -28,6 +28,7 @@ if (typeof window !== "undefined") {
 
 export default function EmbeddableFeedback(initialConfig: WidgetConfig) {
   const { widgetConfig } = useWidgetConfig(initialConfig);
+
   const {
     feedback,
     setFeedback,

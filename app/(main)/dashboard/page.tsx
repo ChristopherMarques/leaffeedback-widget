@@ -9,8 +9,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import SubscriptionManager from "@/components/SubscriptionManager";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/auth-context";
+import { useTranslations } from "next-intl";
 
 function DashboardContent(): JSX.Element {
+  const t = useTranslations("dashboard");
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(
     searchParams.get("tab") || "dashboard"
@@ -40,7 +42,7 @@ function DashboardContent(): JSX.Element {
 
   return (
     <div className="container  mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Feedback Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">{t("feedbackDashboard")}</h1>
       <Tabs
         value={activeTab}
         onValueChange={handleTabChange}
@@ -49,15 +51,15 @@ function DashboardContent(): JSX.Element {
         <TabsList className="border-primary">
           <TabsTrigger value="dashboard" className="flex items-center">
             <LayoutDashboard className="mr-2 h-4 w-4" />
-            Dashboard
+            {t("title")}
           </TabsTrigger>
           <TabsTrigger value="config" className="flex items-center">
             <Settings className="mr-2 h-4 w-4" />
-            Widget Config
+            {t("widgetConfig")}
           </TabsTrigger>
           <TabsTrigger value="manage-plan" className="flex items-center">
             <CreditCard className="mr-2 h-4 w-4" />
-            Manage Plan
+            {t("managePlan")}
           </TabsTrigger>
         </TabsList>
         <TabsContent value="dashboard">
